@@ -1,0 +1,53 @@
+<html>
+  <head>
+    <script src="https://aframe.io/releases/1.7.1/aframe.min.js"></script>
+
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <a href="../" class="back-button">Back to Home</a>
+    <div class="game-ui">
+      <h3>Network Game</h3>
+      <p><strong>Connections:</strong> <span id="connection-count">0</span></p>
+      <p><strong>Nodes:</strong> <span id="node-count">0</span></p>
+      <p><strong>Click objects</strong> to transform and create connections!</p>
+    </div>
+
+    <a-scene>
+      <a-assets>
+        <a-asset-item id="head" src="../media/3D_Ryan_Head_clean.glb"></a-asset-item>
+        <a-asset-item id="body" src="../media/ryan_nontext.glb"></a-asset-item>
+      </a-assets>
+
+      <!-- Initial objects scattered in space -->
+      <a-box id="obj-1" position="-2 1 -3" rotation="0 45 0" color="#4CC3D9" class="clickable network-node"></a-box>
+      <a-sphere id="obj-2" position="2 1.5 -4" radius="0.5" color="#EF2D5E" class="clickable network-node"></a-sphere>
+      <a-cylinder id="obj-3" position="0 2 -5" radius="0.4" height="1" color="#FFC65D" class="clickable network-node"></a-cylinder>
+      <a-box id="obj-4" position="-1.5 0.5 -2" rotation="30 0 45" color="#7BC8A4" class="clickable network-node"></a-box>
+      <a-sphere id="obj-5" position="1.5 0.8 -3.5" radius="0.5" color="#9B59B6" class="clickable network-node"></a-sphere>
+      <a-cylinder id="obj-6" position="-2.5 1.2 -4.5" radius="0.4" height="1" color="#E74C3C" class="clickable network-node"></a-cylinder>
+      <a-box id="obj-7" position="2.2 0.3 -2.5" rotation="0 60 0" color="#3498DB" class="clickable network-node"></a-box>
+      <a-sphere id="obj-8" position="0 1.8 -6" radius="0.5" color="#F39C12" class="clickable network-node"></a-sphere>
+
+      <a-entity gltf-model="#head" position="0 1 -3" scale="1 1 1" rotation="0 0 0" ></a-entity>
+      <a-entity gltf-model="#body" position="0 1 -3" scale="2 2 2" rotation="0 0 0" ></a-entity>
+
+      <!-- Ground plane -->
+      <a-plane position="0 0 -4" rotation="-90 0 0" width="100" height="100" color="#2c3e50" opacity="0.3"></a-plane>
+      <a-sky color=""></a-sky>
+
+      <!-- Lighting -->
+      <a-light type="ambient" color="#ffffff" intensity="0.4"></a-light>
+      <a-light type="directional" position="5 10 5" intensity="0.8"></a-light>
+      <a-light type="point" position="-5 5 -5" color="#4a90e2" intensity="0.6"></a-light>
+      <a-light type="point" position="5 5 -5" color="#e24a90" intensity="0.6"></a-light>
+
+      <!-- Camera -->
+      <a-camera id="main-camera" position="0 2 5" look-controls wasd-controls="enabled: true"></a-camera>
+    </a-scene>
+
+    <script src="script.js"></script>
+
+  </body>
+</html>
+

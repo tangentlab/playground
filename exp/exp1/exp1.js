@@ -450,6 +450,7 @@ function main() {
     const dynamicTexture = createDynamicTexture(gl);
     let rotation = 0;
     let rotX = 0, rotY = 0;
+    let dragVelX = 0, dragVelY = 0; // Velocity for momentum
 
     function render(now) {
         updateDynamicTexture(gl, dynamicTexture, now * 0.001);
@@ -459,6 +460,15 @@ function main() {
         ctx.setTransform(1, 0, 0, 1, 0, 0);
         ctx.clearRect(0, 0, particleCanvas.width, particleCanvas.height);
         rotation = now * 0.001;
+
+        // Apply momentum/inertia - velocity decays over time
+        if (!drag) {
+            dragVelX *= 0.95; // Friction coefficient
+            dragVelY *= 0.95;
+            dragRotX += dragVelX;
+            dragRotY += dragVelY;
+        }
+
         drawScene(gl, programInfo, buffers, dynamicTexture.texture, rotation + dragRotX, dragRotY);
         drawParticles(ctx);
         requestAnimationFrame(render);
@@ -469,11 +479,15 @@ function main() {
         drag = true;
         lastX = e.clientX;
         lastY = e.clientY;
+        dragVelX = 0;
+        dragVelY = 0;
     });
     window.addEventListener('mousemove', function (e) {
         if (drag) {
-            dragRotY += (e.clientX - lastX) * 0.01;
-            dragRotX += (e.clientY - lastY) * 0.01;
+            dragVelX = (e.clientX - lastX) * 0.01;
+            dragVelY = (e.clientY - lastY) * 0.01;
+            dragRotY += dragVelX;
+            dragRotX += dragVelY;
             lastX = e.clientX;
             lastY = e.clientY;
         }

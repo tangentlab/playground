@@ -1,0 +1,53 @@
+body {
+  margin: 0;
+  padding: 0;
+}
+
+.back-button {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 12px 20px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  backdrop-filter: blur(10px);
+  transition: background 0.2s;
+}
+
+.back-button:hover {
+  background: rgba(0, 0, 0, 0.9);
+}
+
+.game-ui {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 20px;
+  border-radius: 10px;
+  font-family: Arial, sans-serif;
+  backdrop-filter: blur(10px);
+  min-width: 200px;
+}
+
+.game-ui h3 {
+  margin: 0 0 10px 0;
+  font-size: 1.2em;
+}
+
+.game-ui p {
+  margin: 5px 0;
+  font-size: 0.9em;
+}
+
+.network-line {
+  opacity: 0.6;
+}
+

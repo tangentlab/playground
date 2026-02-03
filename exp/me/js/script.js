@@ -67,8 +67,6 @@ function getDistance(pos1, pos2) {
 }
 
 
-
-
 function transformObject(element) {
   // Get current object type
   const currentTag = element.tagName.toLowerCase();

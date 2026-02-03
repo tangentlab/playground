@@ -1,14 +1,14 @@
 // Define object types to cycle through
 const objectTypes = [
-        { type: 'box', tag: 'a-box', props: 'width="1" height="1" depth="1"' },
-        { type: 'sphere', tag: 'a-sphere', props: 'radius="0.5"' },
-        { type: 'cylinder', tag: 'a-cylinder', props: 'radius="0.5" height="1"' },
-        { type: 'torus', tag: 'a-torus', props: 'radius="0.5" radius-tubular="0.1"' },
-        { type: 'octahedron', tag: 'a-octahedron', props: 'radius="0.5"' },
-        { type: 'tetrahedron', tag: 'a-tetrahedron', props: 'radius="0.5"' },
-        { type: 'cone', tag: 'a-cone', props: 'radius-bottom="0.5" radius-top="0.1" height="1"' },
-        { type: 'dodecahedron', tag: 'a-dodecahedron', props: 'radius="0.5"' }
-      ];
+  { type: 'box', tag: 'a-box', props: 'width="1" height="1" depth="1"' },
+  { type: 'sphere', tag: 'a-sphere', props: 'radius="0.5"' },
+  { type: 'cylinder', tag: 'a-cylinder', props: 'radius="0.5" height="1"' },
+  { type: 'torus', tag: 'a-torus', props: 'radius="0.5" radius-tubular="0.1"' },
+  { type: 'octahedron', tag: 'a-octahedron', props: 'radius="0.5"' },
+  { type: 'tetrahedron', tag: 'a-tetrahedron', props: 'radius="0.5"' },
+  { type: 'cone', tag: 'a-cone', props: 'radius-bottom="0.5" radius-top="0.1" height="1"' },
+  { type: 'dodecahedron', tag: 'a-dodecahedron', props: 'radius="0.5"' }
+];
 
 // Colors to cycle through
 const colors = ['#4CC3D9', '#EF2D5E', '#FFC65D', '#7BC8A4', '#9B59B6', '#E74C3C', '#3498DB', '#F39C12'];
@@ -63,7 +63,7 @@ function getDistance(pos1, pos2) {
   const dx = pos1.x - pos2.x;
   const dy = pos1.y - pos2.y;
   const dz = pos1.z - pos2.z;
-  return Math.sqrt(dx*dx + dy*dy + dz*dz);
+  return Math.sqrt(dx * dx + dy * dy + dz * dz);
 }
 
 
@@ -138,13 +138,13 @@ function transformObject(element) {
   registerNode(newElement);
 
   // Add click listener to new element
-  newElement.addEventListener('click', function() {
+  newElement.addEventListener('click', function () {
     transformObject(this);
   });
 }
 
 // Mouse click handler with raycasting
-document.querySelector('a-scene').addEventListener('loaded', function() {
+document.querySelector('a-scene').addEventListener('loaded', function () {
   const sceneEl = document.querySelector('a-scene');
   const cameraEl = document.querySelector('#main-camera') || document.querySelector('a-camera');
   const headEl = document.querySelector('#head-model');
@@ -154,7 +154,7 @@ document.querySelector('a-scene').addEventListener('loaded', function() {
       property: 'rotation',
       to: '0 360 0',
       loop: true,
-      dur: 6000,
+      dur: 10000,
       easing: 'linear'
     });
   }
@@ -174,7 +174,7 @@ document.querySelector('a-scene').addEventListener('loaded', function() {
   // Add click event listener to the canvas
   const canvas = sceneEl.canvas;
 
-  canvas.addEventListener('click', function(event) {
+  canvas.addEventListener('click', function (event) {
     // Calculate mouse position in normalized device coordinates (-1 to +1)
     const rect = canvas.getBoundingClientRect();
     mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
@@ -188,9 +188,9 @@ document.querySelector('a-scene').addEventListener('loaded', function() {
 
     // Get all clickable objects
     const clickableObjects = [];
-    document.querySelectorAll('.clickable').forEach(function(element) {
+    document.querySelectorAll('.clickable').forEach(function (element) {
       if (element.object3D && element.object3D.visible) {
-        element.object3D.traverse(function(child) {
+        element.object3D.traverse(function (child) {
           if (child.isMesh) {
             clickableObjects.push(child);
           }
@@ -207,9 +207,9 @@ document.querySelector('a-scene').addEventListener('loaded', function() {
       let aframeEntity = null;
 
       // Search through all clickable entities to find which one contains this mesh
-      document.querySelectorAll('.clickable').forEach(function(el) {
+      document.querySelectorAll('.clickable').forEach(function (el) {
         if (el.object3D && !aframeEntity) {
-          el.object3D.traverse(function(child) {
+          el.object3D.traverse(function (child) {
             if (child === clickedMesh && !aframeEntity) {
               aframeEntity = el;
             }

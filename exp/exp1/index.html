@@ -1,0 +1,125 @@
+<html>
+  <head>
+    <link rel="stylesheet" href="../../css/main.css">
+    <style>
+      .texture-panel {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background: rgba(0, 0, 0, 0.8);
+        color: white;
+        padding: 15px;
+        border-radius: 5px;
+        z-index: 100;
+        font-family: Arial, sans-serif;
+        max-width: 200px;
+      }
+      
+      .texture-panel h3 {
+        margin: 0 0 10px 0;
+        font-size: 14px;
+        text-transform: uppercase;
+      }
+      
+      .texture-panel button {
+        display: block;
+        width: 100%;
+        padding: 8px;
+        margin: 5px 0;
+        background: #3498db;
+        color: white;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+        font-size: 12px;
+        transition: background 0.2s;
+      }
+      
+      .texture-panel button:hover {
+        background: #2980b9;
+      }
+      
+      .texture-panel button.active {
+        background: #e74c3c;
+      }
+      
+      .texture-panel .slider-container {
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 1px solid rgba(255, 255, 255, 0.2);
+      }
+      
+      .texture-panel label {
+        display: block;
+        font-size: 12px;
+        margin-bottom: 5px;
+      }
+      
+      .texture-panel input[type="range"] {
+        width: 100%;
+        height: 6px;
+        border-radius: 3px;
+        background: #555;
+        outline: none;
+        -webkit-appearance: none;
+      }
+      
+      .texture-panel input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background: #3498db;
+        cursor: pointer;
+      }
+      
+      .texture-panel input[type="range"]::-moz-range-thumb {
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background: #3498db;
+        cursor: pointer;
+        border: none;
+      }
+      
+      .speed-value {
+        font-size: 11px;
+        margin-top: 3px;
+        text-align: center;
+        color: #3498db;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+
+    </header>
+    <main>
+      <a href="../../" class="back-button">Back to Home</a>
+      
+      <div class="texture-panel">
+        <h3>Textures</h3>
+        <button class="texture-btn active" data-texture="waves-bokeh">Waves + Bokeh</button>
+        <button class="texture-btn" data-texture="moire-linear">Moire Linear</button>
+        <button class="texture-btn" data-texture="moire-radial">Moire Radial</button>
+        <button class="texture-btn" data-texture="moire-diamond">Moire Diamond</button>
+        <button class="texture-btn" data-texture="grid-moire">Grid Moire</button>
+        
+        <div class="slider-container">
+          <label for="speed-slider">Texture Speed:</label>
+          <input type="range" id="speed-slider" min="0" max="2" step="0.1" value="1">
+          <div class="speed-value"><span id="speed-display">1.0x</span></div>
+        </div>
+      </div>
+      
+      <div style="position:relative; width:100vw; height:100vh;">
+        <canvas id="glcanvas" style="border:1px solid #ccc; position:fixed; left:0; top:0; width:100vw; height:100vh; z-index:1;"></canvas>
+        <canvas id="particleCanvas" style="position:absolute; left:0; top:0; width:100vw; height:100vh; pointer-events:none; z-index:2;"></canvas>
+      </div>
+      
+      <script src="exp1.js"></script>
+    </main>
+  </body>
+
+</html>

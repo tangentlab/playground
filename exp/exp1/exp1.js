@@ -146,6 +146,12 @@ function initBuffers(gl) {
 }
 
 let drag = false, lastX = 0, lastY = 0, dragRotX = 0, dragRotY = 0;
+
+function easeInOutQuad(t) {
+    return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+}
+
+let targetX = 0, targetY = 0;
 let clickParticle = null;
 
 // Particle system
@@ -344,7 +350,7 @@ function createPatternCanvas(size, variant) {
             }
             ctx.stroke();
         }
-    } else {
+    } else if (variant === 'bokeh') {
         const gradient = ctx.createRadialGradient(size * 0.3, size * 0.3, 10, size * 0.5, size * 0.5, size * 0.7);
         gradient.addColorStop(0, '#f39c12');
         gradient.addColorStop(1, '#9b59b6');
@@ -356,19 +362,109 @@ function createPatternCanvas(size, variant) {
             ctx.arc(Math.random() * size, Math.random() * size, 6 + Math.random() * 10, 0, Math.PI * 2);
             ctx.fill();
         }
+    } else if (variant === 'moire-linear') {
+        // Linear moire pattern
+        ctx.fillStyle = '#222';
+        ctx.fillRect(0, 0, size, size);
+        ctx.strokeStyle = 'rgba(255,255,255,0.6)';
+        ctx.lineWidth = 2;
+        const spacing1 = 15;
+        const spacing2 = 16;
+        for (let i = 0; i < size * 2; i += spacing1) {
+            ctx.beginPath();
+            ctx.moveTo(i, 0);
+            ctx.lineTo(i - size, size);
+            ctx.stroke();
+        }
+        ctx.strokeStyle = 'rgba(100,200,255,0.4)';
+        for (let i = 0; i < size * 2; i += spacing2) {
+            ctx.beginPath();
+            ctx.moveTo(i, 0);
+            ctx.lineTo(i - size, size);
+            ctx.stroke();
+        }
+    } else if (variant === 'moire-radial') {
+        // Radial moire pattern
+        ctx.fillStyle = '#1a1a1a';
+        ctx.fillRect(0, 0, size, size);
+        ctx.strokeStyle = 'rgba(255,100,100,0.7)';
+        const centerX = size / 2;
+        const centerY = size / 2;
+        for (let i = 10; i < size; i += 12) {
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, i, 0, Math.PI * 2);
+            ctx.stroke();
+        }
+        ctx.strokeStyle = 'rgba(100,255,200,0.5)';
+        ctx.lineWidth = 1;
+        for (let i = 8; i < size; i += 13) {
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, i, 0, Math.PI * 2);
+            ctx.stroke();
+        }
+    } else if (variant === 'moire-diamond') {
+        // Diamond moire pattern
+        ctx.fillStyle = '#0a0a0a';
+        ctx.fillRect(0, 0, size, size);
+        ctx.strokeStyle = 'rgba(255,200,100,0.6)';
+        ctx.lineWidth = 1.5;
+        const spacing = 18;
+        for (let x = -size; x < size * 2; x += spacing) {
+            ctx.beginPath();
+            ctx.moveTo(x, -size);
+            ctx.lineTo(x + size, size);
+            ctx.stroke();
+        }
+        ctx.strokeStyle = 'rgba(100,150,255,0.5)';
+        for (let x = -size; x < size * 2; x += spacing) {
+            ctx.beginPath();
+            ctx.moveTo(x, size);
+            ctx.lineTo(x + size, -size);
+            ctx.stroke();
+        }
+    } else if (variant === 'grid-moire') {
+        // Grid moire pattern
+        ctx.fillStyle = '#1a1a2e';
+        ctx.fillRect(0, 0, size, size);
+
+        // Create two slightly offset grids for moire effect
+        ctx.strokeStyle = 'rgba(255,100,150,0.5)';
+        ctx.lineWidth = 1;
+        for (let i = 0; i < size; i += 14) {
+            ctx.beginPath();
+            ctx.moveTo(i, 0);
+            ctx.lineTo(i, size);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(0, i);
+            ctx.lineTo(size, i);
+            ctx.stroke();
+        }
+
+        ctx.strokeStyle = 'rgba(100,200,255,0.4)';
+        for (let i = 0; i < size; i += 15) {
+            ctx.beginPath();
+            ctx.moveTo(i, 0);
+            ctx.lineTo(i, size);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(0, i);
+            ctx.lineTo(size, i);
+            ctx.stroke();
+        }
     }
 
     return canvas;
 }
 
-function createDynamicTexture(gl) {
+function createDynamicTexture(gl, patternA = 'waves', patternB = 'bokeh') {
     const texture = gl.createTexture();
     const canvas = document.createElement('canvas');
     canvas.width = 256;
     canvas.height = 256;
     const ctx = canvas.getContext('2d');
-    const imageA = createPatternCanvas(256, 'waves');
-    const imageB = createPatternCanvas(256, 'bokeh');
+    const imageA = createPatternCanvas(256, patternA);
+    const imageB = createPatternCanvas(256, patternB);
 
     gl.bindTexture(gl.TEXTURE_2D, texture);
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
@@ -381,17 +477,32 @@ function createDynamicTexture(gl) {
     return { texture, canvas, ctx, imageA, imageB };
 }
 
-function updateDynamicTexture(gl, textureData, timeSeconds) {
-    const { texture, canvas, ctx, imageA, imageB } = textureData;
+function updateDynamicTexture(gl, textureData, timeSeconds, patternA = 'waves', patternB = 'bokeh', textureSpeed = 1.0) {
+    const { texture, canvas, ctx } = textureData;
+    const imageA = createPatternCanvas(256, patternA);
+    const imageB = createPatternCanvas(256, patternB);
     const width = canvas.width;
     const height = canvas.height;
+
+    // Calculate offset based on time and speed
+    const offsetX = (timeSeconds * 20 * textureSpeed) % width;
+    const offsetY = (timeSeconds * 15 * textureSpeed) % height;
 
     const fade = (Math.sin(timeSeconds * 0.7) + 1) * 0.5;
     ctx.clearRect(0, 0, width, height);
     ctx.globalAlpha = 1;
-    ctx.drawImage(imageA, 0, 0, width, height);
+
+    // Draw images with offset for scrolling effect
+    ctx.save();
+    ctx.translate(offsetX, offsetY);
+    ctx.drawImage(imageA, -width, -height, width * 3, height * 3);
+    ctx.restore();
+
     ctx.globalAlpha = fade;
-    ctx.drawImage(imageB, 0, 0, width, height);
+    ctx.save();
+    ctx.translate(-offsetX * 0.7, -offsetY * 0.7);
+    ctx.drawImage(imageB, -width, -height, width * 3, height * 3);
+    ctx.restore();
     ctx.globalAlpha = 1;
 
     const checkerSize = 32;
@@ -444,30 +555,76 @@ function main() {
     const dynamicTexture = createDynamicTexture(gl);
     let rotation = 0;
     let rotX = 0, rotY = 0;
+    let dragVelX = 0, dragVelY = 0; // Velocity for momentum
+    let textureSpeed = 1.0; // Texture movement speed
+
+    // Texture pattern configuration
+    const texturePatterns = {
+        'waves-bokeh': { patternA: 'waves', patternB: 'bokeh' },
+        'moire-linear': { patternA: 'moire-linear', patternB: 'moire-radial' },
+        'moire-radial': { patternA: 'moire-radial', patternB: 'moire-linear' },
+        'moire-diamond': { patternA: 'moire-diamond', patternB: 'grid-moire' },
+        'grid-moire': { patternA: 'grid-moire', patternB: 'moire-diamond' },
+    };
+
+    let currentPatternKey = 'waves-bokeh';
+    let currentPattern = texturePatterns[currentPatternKey];
 
     function render(now) {
-        updateDynamicTexture(gl, dynamicTexture, now * 0.001);
+        updateDynamicTexture(gl, dynamicTexture, now * 0.001, currentPattern.patternA, currentPattern.patternB, textureSpeed);
         resizeCanvasToDisplaySize(canvas);
         resizeCanvasToDisplaySize(particleCanvas);
         gl.viewport(0, 0, canvas.width, canvas.height);
         ctx.setTransform(1, 0, 0, 1, 0, 0);
         ctx.clearRect(0, 0, particleCanvas.width, particleCanvas.height);
         rotation = now * 0.001;
+
+        // Apply momentum/inertia - velocity decays over time
+        if (!drag) {
+            dragVelX *= 0.95; // Friction coefficient
+            dragVelY *= 0.95;
+            dragRotX += dragVelX;
+            dragRotY += dragVelY;
+        }
+
         drawScene(gl, programInfo, buffers, dynamicTexture.texture, rotation + dragRotX, dragRotY);
         drawParticles(ctx);
         requestAnimationFrame(render);
     }
     requestAnimationFrame(render);
+
+    // Texture panel event listeners
+    document.querySelectorAll('.texture-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+            document.querySelectorAll('.texture-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            currentPatternKey = this.dataset.texture;
+            currentPattern = texturePatterns[currentPatternKey];
+        });
+    });
+
+    // Speed slider event listener
+    const speedSlider = document.getElementById('speed-slider');
+    const speedDisplay = document.getElementById('speed-display');
+    speedSlider.addEventListener('input', function () {
+        textureSpeed = parseFloat(this.value);
+        speedDisplay.textContent = textureSpeed.toFixed(1) + 'x';
+    });
+
     // Mouse drag for cube rotation
     canvas.addEventListener('mousedown', function (e) {
         drag = true;
         lastX = e.clientX;
         lastY = e.clientY;
+        dragVelX = 0;
+        dragVelY = 0;
     });
     window.addEventListener('mousemove', function (e) {
         if (drag) {
-            dragRotY += (e.clientX - lastX) * 0.01;
-            dragRotX += (e.clientY - lastY) * 0.01;
+            dragVelX = (e.clientX - lastX) * 0.01;
+            dragVelY = (e.clientY - lastY) * 0.01;
+            dragRotY += dragVelX;
+            dragRotX += dragVelY;
             lastX = e.clientX;
             lastY = e.clientY;
         }

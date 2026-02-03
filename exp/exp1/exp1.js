@@ -146,6 +146,12 @@ function initBuffers(gl) {
 }
 
 let drag = false, lastX = 0, lastY = 0, dragRotX = 0, dragRotY = 0;
+
+function easeInOutQuad(t) {
+    return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+}
+
+let targetX = 0, targetY = 0;
 let clickParticle = null;
 
 // Particle system

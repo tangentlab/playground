@@ -14,7 +14,9 @@
 
     </div>
 
-    <a-scene>
+    <a-scene webxr="requiredFeatures: hit-test,local-floor;
+                optionalFeatures: dom-overlay,unbounded;
+                overlayElement: #overlay;"></a-scene>
       <a-assets>
         <a-asset-item id="head" src="../../media/3D_Ryan_Head_clean.glb"></a-asset-item>
         <a-asset-item id="body" src="../../media/ryan_nontext.glb"></a-asset-item>

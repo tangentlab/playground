@@ -1,139 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cesium JS Map</title>
-    <script src="https://cdn.jsdelivr.net/npm/cesium@1.138.0/dist/Cesium.js"></script>
-    <link href="https://cdn.jsdelivr.net/npm/cesium@1.138.0/dist/Widgets/widgets.css" rel="stylesheet">
-    <script>
-        // Set Cesium Ion token (optional, but recommended)
-        //Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI2OTcwZjNhZi01ZDEwLTQwMDctYTI0My1lODJmODJiMzg5ZmYiLCJpZCI6MTA1NDgsImlhdCI6MTY0MzAwODExMH0.yVlbJo-CbILkVT8vCJqNYq1_MXZr0fLlvDNp71Q3lCg';
-    </script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        html, body {
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-        }
-        
-        #cesiumContainer {
-            width: 100%;
-            height: 100%;
-        }
-        
-        .controls {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            background: rgba(255, 255, 255, 0.9);
-            padding: 15px;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-            z-index: 100;
-            font-family: Arial, sans-serif;
-        }
-        
-        .controls h3 {
-            margin-bottom: 10px;
-            font-size: 14px;
-        }
-        
-        .controls button {
-            display: block;
-            width: 100%;
-            padding: 8px;
-            margin-bottom: 5px;
-            background: #3498db;
-            color: white;
-            border: none;
-            border-radius: 3px;
-            cursor: pointer;
-            font-size: 12px;
-        }
-        
-        .controls button:hover {
-            background: #2980b9;
-        }
-    </style>
+  <meta charset="utf-8">
+  <!-- Include the CesiumJS JavaScript and CSS files -->
+  <script src="https://cesium.com/downloads/cesiumjs/releases/1.138/Build/Cesium/Cesium.js"></script>
+  <link href="https://cesium.com/downloads/cesiumjs/releases/1.138/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
 </head>
 <body>
-    <div id="cesiumContainer"></div>
-    
-    <div class="controls">
-        <h3>Map Controls</h3>
-        <button onclick="flyToNYC()">Fly to NYC</button>
-        <button onclick="flyToEiffel()">Fly to Eiffel Tower</button>
-        <button onclick="flyToSydney()">Fly to Sydney Opera House</button>
-        <button onclick="toggleBuildings()">Toggle 3D Buildings</button>
-    </div>
+  <div id="cesiumContainer"></div>
+  <script type="module">
+    // Your access token can be found at: https://ion.cesium.com/tokens.
+    // This is the default access token from your ion account
 
-    <script>
-        function initMap() {
-            // Create the Cesium Viewer
-            const viewer = new Cesium.Viewer('cesiumContainer', {
-                terrainProvider: Cesium.Ion.createTerrainProvider({
-                    requestWaterMask: true,
-                    requestVertexNormals: true
-                })
-            });
+    Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI3Njk2YmZlOC0zMWNjLTQyNTgtOTM2OS1jYjU4MzlhZTI0YmMiLCJpZCI6Mzg2ODIyLCJpYXQiOjE3NzAxODYyMTN9.JCPJLbAvrgzStKuTzzrxFss2FHwv8p634oMBKdE7bO8';
 
-            // Enable lighting
-            viewer.scene.globe.enableLighting = true;
+    // Initialize the Cesium Viewer in the HTML element with the `cesiumContainer` ID.
+    const viewer = new Cesium.Viewer('cesiumContainer', {
+      terrain: Cesium.Terrain.fromWorldTerrain(),
+    });
 
-            // Add 3D buildings layer
-            const buildingsTileset = Cesium.Ion.createOsmBuildingsAsync();
-            buildingsTileset.then(tileset => {
-                viewer.scene.primitives.add(tileset);
-            });
+    // Fly the camera to San Francisco at the given longitude, latitude, and height.
+    viewer.camera.flyTo({
+      destination: Cesium.Cartesian3.fromDegrees(-122.4175, 37.655, 400),
+      orientation: {
+        heading: Cesium.Math.toRadians(0.0),
+        pitch: Cesium.Math.toRadians(-15.0),
+      }
+    });
 
-            // Fly to NYC
-            window.flyToNYC = function() {
-                viewer.camera.flyTo({
-                    destination: Cesium.Cartesian3.fromDegrees(-74.0060, 40.7128, 1500),
-                    duration: 2
-                });
-            };
-
-            // Fly to Eiffel Tower
-            window.flyToEiffel = function() {
-                viewer.camera.flyTo({
-                    destination: Cesium.Cartesian3.fromDegrees(2.2945, 48.8584, 1000),
-                    duration: 2
-                });
-            };
-
-            // Fly to Sydney Opera House
-            window.flyToSydney = function() {
-                viewer.camera.flyTo({
-                    destination: Cesium.Cartesian3.fromDegrees(151.2153, -33.8568, 1200),
-                    duration: 2
-                });
-            };
-
-            // Toggle buildings layer visibility
-            window.toggleBuildings = function() {
-                buildingsTileset.then(tileset => {
-                    tileset.show = !tileset.show;
-                });
-            };
-
-            // Initial view: set to home position (somewhere over the globe)
-            viewer.camera.flyHome(2);
-        }
-
-        // Initialize map when DOM is ready
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initMap);
-        } else {
-            initMap();
-        }
-    </script>
+    // Add Cesium OSM Buildings, a global 3D buildings layer.
+    const buildingTileset = await Cesium.createOsmBuildingsAsync();
+    viewer.scene.primitives.add(buildingTileset);
+  </script>
+ </div>
 </body>
 </html>

@@ -51,3 +51,5 @@
 *.tga filter=lfs diff=lfs merge=lfs -text
 *.tif filter=lfs diff=lfs merge=lfs -text
 *.tiff filter=lfs diff=lfs merge=lfs -text
+
+*.data filter=lfs diff=lfs merge=lfs -text

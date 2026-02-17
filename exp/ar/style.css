@@ -1,6 +1,7 @@
 body {
   margin: 0;
   padding: 0;
+  background: transparent;
 }
 
 .back-button {
@@ -21,6 +22,29 @@ body {
 
 .back-button:hover {
   background: rgba(0, 0, 0, 0.9);
+}
+
+#overlay {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.overlay-card {
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-family: Arial, sans-serif;
+  font-size: 13px;
+  backdrop-filter: blur(8px);
+}
+
+.overlay-title {
+  font-weight: 600;
+  margin-bottom: 4px;
 }
 
 .game-ui {

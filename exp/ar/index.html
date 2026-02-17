@@ -6,15 +6,25 @@
   </head>
   <body>
     <a href="../../index.html" class="back-button">Back to Home</a>
+    <div id="overlay">
+      <div class="overlay-card">
+        <div class="overlay-title">AR Mode</div>
+        <div class="overlay-text">Tap the AR button to enter camera view.</div>
+      </div>
+    </div>
     <!-- <div class="game-ui">
       <h3>Ryan demo</h3>
       <p><strong>Connections:</strong> <span id="connection-count">0</span></p>
 
     </div> -->
 
-    <a-scene webxr="requiredFeatures: hit-test,local-floor;
-                optionalFeatures: dom-overlay,unbounded;
-                overlayElement: #overlay;"></a-scene>
+    <a-scene
+      xr-mode-ui="enabled: true; enterAREnabled: true"
+      webxr="requiredFeatures: local-floor;
+             optionalFeatures: dom-overlay,unbounded;
+             overlayElement: #overlay;"
+      renderer="alpha: true; antialias: true"
+      background="transparent: true">
       <a-assets>
         <a-asset-item id="head" src="../../media/3D_Ryan_Head_clean.glb"></a-asset-item>
         <a-asset-item id="body" src="../../media/ryan_nontext.glb"></a-asset-item>
@@ -24,10 +34,6 @@
       <a-entity gltf-model="#body" position="0 1 -3" scale="2 2 2" rotation="0 0 0"></a-entity>
       <a-text value="Ryan Hill" position="0 2.6 -3" align="center" color="#111111" width="6"></a-text>
 
-      <!-- Ground plane -->
-      <a-plane position="0 0 -4" rotation="-90 0 0" width="100" height="100" color="#2c3e50" opacity="0.3"></a-plane>
-      <a-sky color="#ffffff"></a-sky>
-
       <!-- Lighting -->
       <a-light type="ambient" color="#ffffff" intensity="0.4"></a-light>
       <a-light type="directional" position="5 10 5" intensity="0.8"></a-light>
@@ -35,7 +41,7 @@
       <a-light type="point" position="5 5 -5" color="#e24a90" intensity="0.6"></a-light>
 
       <!-- Camera -->
-      <a-camera id="main-camera" position="0 2 5" look-controls wasd-controls="enabled: true"></a-camera>
+      <a-camera id="main-camera" position="0 1.6 0" look-controls="enabled: false" wasd-controls="enabled: false"></a-camera>
     </a-scene>
 
     <script src="script.js"></script>

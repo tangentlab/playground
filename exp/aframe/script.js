@@ -240,7 +240,4 @@ document.querySelector("a-scene").addEventListener("loaded", function () {
       }
     }
   });
-
-  // Initialize network
-  initializeNetwork();
 });

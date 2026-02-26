@@ -74,6 +74,9 @@ body {
 .thumb-me {
   background: linear-gradient(135deg, #22c55e, #14b8a6);
 }
+.thumb-music {
+    background: linear-gradient(135deg, #a855f7, #f43f5e);
+}
 .card-text .title {
   font-size: 1.05em;
   font-weight: 600;

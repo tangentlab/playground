@@ -79,7 +79,7 @@ updateParallax();
 const heroCanvas = document.getElementById("hero-canvas");
 const heroScene = new THREE.Scene();
 const heroCamera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
-heroCamera.position.set(0, 0.3, 3.2);
+heroCamera.position.set(0, 2, 10);
 const heroRenderer = new THREE.WebGLRenderer({
   canvas: heroCanvas,
   alpha: true,
@@ -95,10 +95,10 @@ heroScene.add(heroKey);
 
 let heroModel = null;
 const loader = new GLTFLoader();
-const modelUrl = new URL("../media/3D_Ryan_Head_clean.glb", import.meta.url);
+const modelUrl = new URL("../media/ryan_nontext.glb", import.meta.url);
 loader.load(modelUrl.href, (gltf) => {
   heroModel = gltf.scene;
-  heroModel.scale.set(1.2, 1.2, 1.2);
+  heroModel.scale.set(5, 5, 5);
   heroScene.add(heroModel);
 });
 

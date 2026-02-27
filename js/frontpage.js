@@ -1,5 +1,5 @@
 import * as THREE from "three";
-//import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 
 const layers = Array.from(document.querySelectorAll(".parallax-layer"));
 const canvas = document.getElementById("particle-canvas");
@@ -94,18 +94,13 @@ heroKey.position.set(1.2, 1.4, 2);
 heroScene.add(heroKey);
 
 let heroModel = null;
-const loader = new THREE.GLTFLoader();
-loader.load("media/3D_Ryan_Head_clean.glb", (gltf) => {
-  console.log(gltf);
+const loader = new GLTFLoader();
+const modelUrl = new URL("../media/3D_Ryan_Head_clean.glb", import.meta.url);
+loader.load(modelUrl.href, (gltf) => {
   heroModel = gltf.scene;
   heroModel.scale.set(1.2, 1.2, 1.2);
   heroScene.add(heroModel);
 });
-
-const geometry = new THREE.BoxGeometry(1, 1, 1);
-const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-const cube = new THREE.Mesh(geometry, material);
-heroScene.add(cube);
 
 function resizeHeroCanvas() {
   const rect = heroCanvas.getBoundingClientRect();

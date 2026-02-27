@@ -5,57 +5,92 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home Page</title>
     <link rel="stylesheet" href="css/main.css"></link>
+    <script type="importmap">
+        {
+          "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@v0.183.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@v0.183.0/examples/jsm/"
+          }
+        }
+    </script>
+
 </head>
 <body>
-    <div class="container">
-        <h1>Welcome to my web experiments</h1>
-        <p>Click below to view the experiments:</p>
-        <div class="experiment-list">
-            <a class="experiment-card" href="exp/exp1/">
-                <div class="thumb thumb-cube"></div>
-                <div class="card-text">
-                    <div class="title">Cube Demo</div>
-                    <div class="subtitle">Interactive WebGL cube</div>
-                </div>
-            </a>
-            <a class="experiment-card" href="exp/exp3/">
-                <div class="thumb thumb-swarm"></div>
-                <div class="card-text">
-                    <div class="title">Swarming Particles</div>
-                    <div class="subtitle">Flowing particle field</div>
-                </div>
-            </a>
-            <!-- <a href="exp/exp4/">Go to React Three Fiber Hotspots Demo</a> -->
-            <!-- <a href="exp/exp5/">Go to iFrame Demo</a> -->
-            <a class="experiment-card" href="exp/aframe/">
-                <div class="thumb thumb-vr"></div>
-                <div class="card-text">
-                    <div class="title">A-Frame VR clicking demo</div>
-                    <div class="subtitle">3D scene demo</div>
-                </div>
-            </a>
-            <a class="experiment-card" href="exp/me/">
-                <div class="thumb thumb-me"></div>
-                <div class="card-text">
-                    <div class="title">Me</div>
-                    <div class="subtitle">Personal A-Frame scene</div>
-                </div>
-            </a>
-            <a class="experiment-card" href="exp/music-vis/">
-                <div class="thumb thumb-music"></div>
-                <div class="card-text">
-                    <div class="title">Music Visualizer</div>
-                    <div class="subtitle">Audio-reactive moire + particles</div>
-                </div>
-            </a>
-            <hr />
-            <p>Created by Ryan Hill
-            </p>
-            <a class="footer-link" href="http://guidewire.squarespace.com" target="_blank">website</a>
-        </div>
-        <div class="footer">
-
-        </div>
+    <canvas id="particle-canvas"></canvas>
+    <div class="parallax-stage">
+        <div class="parallax-layer layer-1" data-depth="0.08"></div>
+        <div class="parallax-layer layer-2" data-depth="0.16"></div>
+        <div class="parallax-layer layer-3" data-depth="0.24"></div>
     </div>
+    <main class="page">
+        <section class="hero section">
+            <div class="hero-card">
+                <div class="hero-model">
+                    <canvas id="hero-canvas" aria-label="3D head model"></canvas>
+                </div>
+                <h1>Web experiments with Ryan Hill</h1>
+
+                <p>Scroll to explore</p>
+            </div>
+        </section>
+        <section class="section">
+            <div class="container">
+                <h2>Experiments</h2>
+                <p>Click below to view the experiments:</p>
+                <div class="experiment-list floating-list">
+                    <a class="experiment-card" href="exp/exp1/">
+                        <div class="thumb thumb-cube"></div>
+                        <div class="card-text">
+                            <div class="title">Cube Demo</div>
+                            <div class="subtitle">Interactive WebGL cube</div>
+                        </div>
+                    </a>
+                    <a class="experiment-card" href="exp/exp3/">
+                        <div class="thumb thumb-swarm"></div>
+                        <div class="card-text">
+                            <div class="title">Swarming Particles</div>
+                            <div class="subtitle">Flowing particle field</div>
+                        </div>
+                    </a>
+                    <a class="experiment-card" href="exp/aframe/">
+                        <div class="thumb thumb-vr"></div>
+                        <div class="card-text">
+                            <div class="title">A-Frame VR clicking demo</div>
+                            <div class="subtitle">3D scene demo</div>
+                        </div>
+                    </a>
+                    <a class="experiment-card" href="exp/me/">
+                        <div class="thumb thumb-me"></div>
+                        <div class="card-text">
+                            <div class="title">Me</div>
+                            <div class="subtitle">Personal A-Frame scene</div>
+                        </div>
+                    </a>
+                    <a class="experiment-card" href="exp/music-vis/">
+                        <div class="thumb thumb-music"></div>
+                        <div class="card-text">
+                            <div class="title">Music Visualizer</div>
+                            <div class="subtitle">Audio-reactive moire + particles</div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </section>
+        <section class="section footer-section">
+            <div class="container footer-card">
+                <h2>Built by Ryan Hill</h2>
+                <a class="footer-link" href="http://guidewire.squarespace.com" target="_blank">website</a>
+                <a class="footer-link" href="https://www.linkedin.com/in/ryan-g-hill/" target="_blank">LinkedIn</a>
+                <a class="footer-link" href="https://github.com/tangentlab" target="_blank">GitHub</a>
+                <!-- <a class="footer-link" href="https://www.instagram.com/ryanhillart/" target="_blank">Instagram</a>
+                <a class="footer-link" href="https://www.youtube.com/ryanhillart" target="_blank">YouTube</a>
+                 -->
+            </div>
+        </section>
+    </main>
+
+
+<script type="module" src="js/frontpage.js"></script>
+
 </body>
 </html>

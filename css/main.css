@@ -173,6 +173,7 @@ main.page {
 .footer-link {
   display: inline-block;
   margin-top: 6px;
+  margin-right: 15px;
   color: #7dd3fc;
   text-decoration: none;
 }

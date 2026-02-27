@@ -7,55 +7,144 @@
     <link rel="stylesheet" href="css/main.css"></link>
 </head>
 <body>
-    <div class="container">
-        <h1>Welcome to my web experiments</h1>
-        <p>Click below to view the experiments:</p>
-        <div class="experiment-list">
-            <a class="experiment-card" href="exp/exp1/">
-                <div class="thumb thumb-cube"></div>
-                <div class="card-text">
-                    <div class="title">Cube Demo</div>
-                    <div class="subtitle">Interactive WebGL cube</div>
-                </div>
-            </a>
-            <a class="experiment-card" href="exp/exp3/">
-                <div class="thumb thumb-swarm"></div>
-                <div class="card-text">
-                    <div class="title">Swarming Particles</div>
-                    <div class="subtitle">Flowing particle field</div>
-                </div>
-            </a>
-            <!-- <a href="exp/exp4/">Go to React Three Fiber Hotspots Demo</a> -->
-            <!-- <a href="exp/exp5/">Go to iFrame Demo</a> -->
-            <a class="experiment-card" href="exp/aframe/">
-                <div class="thumb thumb-vr"></div>
-                <div class="card-text">
-                    <div class="title">A-Frame VR clicking demo</div>
-                    <div class="subtitle">3D scene demo</div>
-                </div>
-            </a>
-            <a class="experiment-card" href="exp/me/">
-                <div class="thumb thumb-me"></div>
-                <div class="card-text">
-                    <div class="title">Me</div>
-                    <div class="subtitle">Personal A-Frame scene</div>
-                </div>
-            </a>
-            <a class="experiment-card" href="exp/music-vis/">
-                <div class="thumb thumb-music"></div>
-                <div class="card-text">
-                    <div class="title">Music Visualizer</div>
-                    <div class="subtitle">Audio-reactive moire + particles</div>
-                </div>
-            </a>
-            <hr />
-            <p>Created by Ryan Hill
-            </p>
-            <a class="footer-link" href="http://guidewire.squarespace.com" target="_blank">website</a>
-        </div>
-        <div class="footer">
-
-        </div>
+    <canvas id="particle-canvas"></canvas>
+    <div class="parallax-stage">
+        <div class="parallax-layer layer-1" data-depth="0.08"></div>
+        <div class="parallax-layer layer-2" data-depth="0.16"></div>
+        <div class="parallax-layer layer-3" data-depth="0.24"></div>
     </div>
+    <main class="page">
+        <section class="hero section">
+            <div class="hero-card">
+                <h1>Web experiments with Ryan Hill</h1>
+                <p>Scroll to explore</p>
+            </div>
+        </section>
+        <section class="section">
+            <div class="container">
+                <h2>Experiments</h2>
+                <p>Click below to view the experiments:</p>
+                <div class="experiment-list floating-list">
+                    <a class="experiment-card" href="exp/exp1/">
+                        <div class="thumb thumb-cube"></div>
+                        <div class="card-text">
+                            <div class="title">Cube Demo</div>
+                            <div class="subtitle">Interactive WebGL cube</div>
+                        </div>
+                    </a>
+                    <a class="experiment-card" href="exp/exp3/">
+                        <div class="thumb thumb-swarm"></div>
+                        <div class="card-text">
+                            <div class="title">Swarming Particles</div>
+                            <div class="subtitle">Flowing particle field</div>
+                        </div>
+                    </a>
+                    <a class="experiment-card" href="exp/aframe/">
+                        <div class="thumb thumb-vr"></div>
+                        <div class="card-text">
+                            <div class="title">A-Frame VR clicking demo</div>
+                            <div class="subtitle">3D scene demo</div>
+                        </div>
+                    </a>
+                    <a class="experiment-card" href="exp/me/">
+                        <div class="thumb thumb-me"></div>
+                        <div class="card-text">
+                            <div class="title">Me</div>
+                            <div class="subtitle">Personal A-Frame scene</div>
+                        </div>
+                    </a>
+                    <a class="experiment-card" href="exp/music-vis/">
+                        <div class="thumb thumb-music"></div>
+                        <div class="card-text">
+                            <div class="title">Music Visualizer</div>
+                            <div class="subtitle">Audio-reactive moire + particles</div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </section>
+        <section class="section footer-section">
+            <div class="container footer-card">
+                <h2>Created by Ryan Hill</h2>
+                <a class="footer-link" href="http://guidewire.squarespace.com" target="_blank">website</a>
+            </div>
+        </section>
+    </main>
+    <script>
+        const layers = Array.from(document.querySelectorAll('.parallax-layer'));
+        const canvas = document.getElementById('particle-canvas');
+        const ctx = canvas.getContext('2d');
+        const floatingCards = Array.from(document.querySelectorAll('.experiment-card'));
+        let particles = [];
+        let lastScrollY = window.scrollY;
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        function createParticles(count = 140) {
+            particles = Array.from({ length: count }).map(() => ({
+                x: Math.random() * window.innerWidth,
+                y: Math.random() * window.innerHeight,
+                radius: 1 + Math.random() * 2.5,
+                speed: 0.2 + Math.random() * 0.6,
+                drift: (Math.random() - 0.5) * 0.4
+            }));
+        }
+
+        function drawParticles(scrollDelta) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+            for (const p of particles) {
+                p.y += p.speed + scrollDelta * 0.02;
+                p.x += p.drift;
+                if (p.y > canvas.height + 20) p.y = -20;
+                if (p.x > canvas.width + 20) p.x = -20;
+                if (p.x < -20) p.x = canvas.width + 20;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function updateParallax() {
+            const scrollY = window.scrollY;
+            const delta = scrollY - lastScrollY;
+            layers.forEach(layer => {
+                const depth = Number(layer.dataset.depth || 0.1);
+                const translateY = scrollY * depth;
+                layer.style.transform = `translate3d(0, ${translateY}px, 0)`;
+            });
+            floatingCards.forEach(card => {
+                const randX = Number(card.dataset.randX || 0);
+                const randY = Number(card.dataset.randY || 0);
+                const randZ = Number(card.dataset.randZ || 0);
+                const scrollOffset = scrollY * 0.08;
+                card.style.transform = `translate3d(${randX}px, ${randY + scrollOffset}px, ${randZ}px)`;
+            });
+            drawParticles(delta);
+            lastScrollY = scrollY;
+        }
+
+        window.addEventListener('scroll', updateParallax);
+        window.addEventListener('resize', () => {
+            resizeCanvas();
+            createParticles();
+            updateParallax();
+        });
+
+        floatingCards.forEach((card, index) => {
+            const spread = 500;
+            const sign = index % 2 === 0 ? 1 : -1;
+            card.dataset.randX = (Math.random() * spread + 40) * sign;
+            card.dataset.randY = Math.random() * 60 - 30;
+            card.dataset.randZ = Math.random() * 80;
+        });
+
+        resizeCanvas();
+        createParticles();
+        updateParallax();
+    </script>
 </body>
 </html>

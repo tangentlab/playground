@@ -1,0 +1,49 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>MASK JAM</title>
+    <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
+    <script src="js/af-components.js"></script>
+
+</head>
+
+<body>
+    <a-scene mask-toggle log="--loaded" game-manager="--hi">
+        <a-assets>
+            <!-- <audio id="ambMasked" src="masked.mp3"></audio>
+            <audio id="ambUnmasked" src="unmasked.mp3"></audio> -->
+        </a-assets>
+
+        <a-entity id="rig" position="0 0 5">
+            <a-camera wasd-controls look-controls position="0 1.6 0">
+                <a-cursor></a-cursor>
+            </a-camera>
+        </a-entity>
+
+        <a-plane rotation="-90 0 0" width="30" height="30" color="#222"></a-plane>
+
+        <!-- Masked world (visible first) -->
+        <a-box class="masked" position="0 1 -3" depth="1" height="2" width="6" color="#6cf"></a-box>
+        <a-box class="masked" position="3 0.5 -6" depth="2" height="1" width="2" color="#4af"></a-box>
+
+        <!-- Unmasked world (hidden first) -->
+        <a-entity class="unmasked">
+            <a-box position="-3 0.5 -6" depth="2" height="1" width="2" color="#f66"></a-box>
+            <a-sphere position="0 1 -9" radius="0.5" color="#ff0" goal></a-sphere>
+        </a-entity>
+
+        <!-- UI text -->
+        <a-entity id="msg" position="-1.2 2 -2" text="value: PRESS SPACE TO TOGGLE MASK; color: #000; width: 4">
+        </a-entity>
+
+        <!-- Optional ambience (add audio files later) -->
+        <!--
+      <a-entity id="ambMasked" sound="src: url(masked.mp3); loop: true; volume: 0.6"></a-entity>
+      <a-entity id="ambUnmasked" sound="src: url(unmasked.mp3); loop: true; volume: 0.6"></a-entity>
+      -->
+    </a-scene>
+</body>
+
+</html>

@@ -1,0 +1,124 @@
+:root {
+  --bg: #0f172a;
+  --panel: #111827;
+  --text: #e5e7eb;
+  --muted: #94a3b8;
+  --accent: #38bdf8;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(circle at top, #1e293b, var(--bg));
+  color: var(--text);
+  font-family: Arial, sans-serif;
+}
+
+.slideshow {
+  width: min(900px, 92vw);
+  background: rgba(17, 24, 39, 0.9);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 14px;
+  padding: 18px;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+}
+
+.viewport {
+  position: relative;
+  overflow: hidden;
+  border-radius: 10px;
+  background: #020617;
+  min-height: 360px;
+}
+
+.track {
+  display: flex;
+  transition: transform 360ms ease;
+  will-change: transform;
+}
+
+.slide {
+  min-width: 100%;
+  min-height: 360px;
+  display: grid;
+  place-content: center;
+  text-align: center;
+  padding: 28px;
+}
+
+.slide h2 {
+  margin: 0 0 10px;
+  font-size: 2rem;
+}
+
+.slide p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 1rem;
+}
+
+.slide-1 {
+  background: linear-gradient(135deg, #0ea5e9, #6366f1);
+}
+
+.slide-2 {
+  background: linear-gradient(135deg, #22c55e, #14b8a6);
+}
+
+.slide-3 {
+  background: linear-gradient(135deg, #f97316, #ef4444);
+}
+
+.controls {
+  margin-top: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn {
+  border: 0;
+  border-radius: 8px;
+  padding: 10px 16px;
+  color: white;
+  background: #2563eb;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  border: 0;
+  background: rgba(148, 163, 184, 0.45);
+  cursor: pointer;
+  transition:
+    transform 180ms ease,
+    background 180ms ease;
+}
+
+.dot.active {
+  background: var(--accent);
+  transform: scale(1.2);
+}

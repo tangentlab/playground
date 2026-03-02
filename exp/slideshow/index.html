@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Slideshow Demo</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <section class="slideshow" aria-label="Image slideshow">
+      <div class="viewport">
+        <div class="track" id="slide-track">
+          <article class="slide slide-1">
+            <div>
+              <h2>Slide One</h2>
+              <p>Use Next/Previous buttons or dots to navigate.</p>
+            </div>
+          </article>
+          <article class="slide slide-2">
+            <div>
+              <h2>Slide Two</h2>
+              <p>Each dot at the bottom indicates current position.</p>
+            </div>
+          </article>
+          <article class="slide slide-3">
+            <div>
+              <h2>Slide Three</h2>
+              <p>You can replace these with real images or content blocks.</p>
+            </div>
+          </article>
+        </div>
+      </div>
+
+      <div class="controls">
+        <button class="btn" id="prev-btn" type="button">Previous</button>
+        <div class="dots" id="dots" aria-label="Slide indicators"></div>
+        <button class="btn" id="next-btn" type="button">Next</button>
+      </div>
+    </section>
+
+    <script>
+      const track = document.getElementById("slide-track");
+      const prevBtn = document.getElementById("prev-btn");
+      const nextBtn = document.getElementById("next-btn");
+      const dotsWrap = document.getElementById("dots");
+      const slides = Array.from(track.children);
+
+      let currentIndex = 0;
+
+      function renderDots() {
+        dotsWrap.innerHTML = "";
+        slides.forEach((_, index) => {
+          const dot = document.createElement("button");
+          dot.className = `dot${index === currentIndex ? " active" : ""}`;
+          dot.type = "button";
+          dot.setAttribute("aria-label", `Go to slide ${index + 1}`);
+          dot.addEventListener("click", () => goToSlide(index));
+          dotsWrap.appendChild(dot);
+        });
+      }
+
+      function updateButtons() {
+        prevBtn.disabled = currentIndex === 0;
+        nextBtn.disabled = currentIndex === slides.length - 1;
+      }
+
+      function goToSlide(index) {
+        currentIndex = Math.max(0, Math.min(index, slides.length - 1));
+        track.style.transform = `translateX(-${currentIndex * 100}%)`;
+        renderDots();
+        updateButtons();
+      }
+
+      prevBtn.addEventListener("click", () => goToSlide(currentIndex - 1));
+      nextBtn.addEventListener("click", () => goToSlide(currentIndex + 1));
+
+      goToSlide(0);
+    </script>
+  </body>
+</html>

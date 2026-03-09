@@ -109,9 +109,43 @@ function resizeHeroCanvas() {
   heroRenderer.setSize(rect.width, rect.height, false);
 }
 
+let heroDrag = { active: false, lastX: 0, lastY: 0 };
+const ROTATE_SPEED = 0.005;
+
+function onHeroPointerDown(e) {
+  heroDrag.active = true;
+  heroDrag.lastX = e.clientX;
+  heroDrag.lastY = e.clientY;
+  heroCanvas.setPointerCapture(e.pointerId);
+  heroCanvas.style.cursor = "grabbing";
+}
+
+function onHeroPointerMove(e) {
+  if (!heroDrag.active || !heroModel) return;
+  const dx = e.clientX - heroDrag.lastX;
+  const dy = e.clientY - heroDrag.lastY;
+  heroModel.rotation.y += dx * ROTATE_SPEED;
+  heroModel.rotation.x += dy * ROTATE_SPEED;
+  heroModel.rotation.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, heroModel.rotation.x));
+  heroDrag.lastX = e.clientX;
+  heroDrag.lastY = e.clientY;
+}
+
+function onHeroPointerUp(e) {
+  heroDrag.active = false;
+  if (e && e.pointerId !== undefined) heroCanvas.releasePointerCapture(e.pointerId);
+  heroCanvas.style.cursor = "grab";
+}
+
+heroCanvas.addEventListener("pointerdown", onHeroPointerDown);
+heroCanvas.addEventListener("pointermove", onHeroPointerMove);
+heroCanvas.addEventListener("pointerup", onHeroPointerUp);
+heroCanvas.addEventListener("pointerleave", onHeroPointerUp);
+heroCanvas.style.cursor = "grab";
+
 function animateHero() {
   requestAnimationFrame(animateHero);
-  if (heroModel) {
+  if (heroModel && !heroDrag.active) {
     heroModel.rotation.y += 0.004;
   }
   heroRenderer.render(heroScene, heroCamera);

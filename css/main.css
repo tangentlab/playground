@@ -69,8 +69,8 @@ main.page {
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
 }
 .hero-model {
-  width: 220px;
-  height: 220px;
+  width: 400px;
+  height: 400px;
   margin: 0 auto 16px;
 }
 .hero-model canvas {

@@ -65,7 +65,7 @@ window.addEventListener("resize", () => {
 });
 
 floatingCards.forEach((card, index) => {
-  const spread = 500;
+  const spread = 0;
   const sign = index % 2 === 0 ? 1 : -1;
   card.dataset.randX = (Math.random() * spread + 40) * sign;
   card.dataset.randY = Math.random() * 60 - 30;

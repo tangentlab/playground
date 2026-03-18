@@ -25,7 +25,7 @@ function createParticles(count = 140) {
 
 function drawParticles(scrollDelta) {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
+  ctx.fillStyle = "rgba(220, 210, 235, 0.5)";
   for (const p of particles) {
     p.y += p.speed + scrollDelta * 0.02;
     p.x += p.drift;

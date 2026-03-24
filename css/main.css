@@ -1,9 +1,10 @@
 body {
-  font-family: Arial, sans-serif;
+  font-family: "DM Sans", system-ui, sans-serif;
   margin: 0;
-  background: #0b0f1a;
-  color: #e5e7eb;
+  background: #0f0d14;
+  color: #e8e4ef;
   min-height: 100vh;
+  font-weight: 400;
 }
 main.page {
   position: relative;
@@ -23,31 +24,36 @@ main.page {
   inset: 0;
   z-index: 1;
   pointer-events: none;
+  overflow: hidden;
 }
 .parallax-layer {
   position: absolute;
-  inset: -20%;
-  opacity: 0.5;
+  inset: -30%;
+  opacity: 0.85;
+  filter: blur(80px);
 }
 .layer-1 {
   background: radial-gradient(
-    circle at 20% 30%,
-    rgba(59, 130, 246, 0.35),
-    transparent 45%
+    ellipse 80% 60% at 25% 25%,
+    rgba(180, 140, 220, 0.45),
+    rgba(120, 90, 200, 0.2) 40%,
+    transparent 65%
   );
 }
 .layer-2 {
   background: radial-gradient(
-    circle at 80% 40%,
-    rgba(168, 85, 247, 0.3),
-    transparent 50%
+    ellipse 70% 70% at 75% 35%,
+    rgba(255, 180, 160, 0.35),
+    rgba(240, 140, 120, 0.15) 45%,
+    transparent 70%
   );
 }
 .layer-3 {
   background: radial-gradient(
-    circle at 50% 80%,
-    rgba(34, 197, 94, 0.25),
-    transparent 55%
+    ellipse 60% 80% at 50% 85%,
+    rgba(140, 200, 220, 0.3),
+    rgba(100, 170, 200, 0.1) 50%,
+    transparent 70%
   );
 }
 .section {
@@ -61,17 +67,20 @@ main.page {
   text-align: center;
 }
 .hero-card {
-  background: rgba(15, 23, 42, 0.7);
-  border: 1px solid rgba(148, 163, 184, 0.2);
-  padding: 40px 50px;
-  border-radius: 16px;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+  background: rgba(24, 20, 32, 0.5);
+  border: 1px solid rgba(220, 210, 235, 0.12);
+  padding: 48px 56px;
+  border-radius: 24px;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow:
+    0 24px 48px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 .hero-model {
   width: 400px;
   height: 400px;
-  margin: 0 auto 16px;
+  margin: 0 auto 24px;
 }
 .hero-model canvas {
   width: 100%;
@@ -79,59 +88,89 @@ main.page {
   display: block;
 }
 .hero-card h1 {
-  margin: 0 0 10px;
-  font-size: 2.6rem;
+  font-family: "Outfit", system-ui, sans-serif;
+  margin: 0 0 14px;
+  font-size: clamp(2.2rem, 5vw, 3.2rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: #f5f2fa;
+  line-height: 1.15;
 }
-.hero-card p {
+.hero-tagline {
   margin: 0;
-  color: #cbd5f5;
+  font-size: 1.1rem;
+  color: rgba(220, 212, 235, 0.9);
+  max-width: 420px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.55;
+  font-weight: 400;
 }
 .container {
-  background: rgba(15, 23, 42, 0.75);
-  padding: 32px 40px;
-  border-radius: 14px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  background: rgba(28, 24, 38, 0.5);
+  padding: 40px 48px;
+  border-radius: 20px;
+  border: 1px solid rgba(220, 210, 235, 0.1);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
   text-align: center;
   max-width: 900px;
+}
+.container h2 {
+  font-family: "Outfit", system-ui, sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: #f2eef8;
+}
+.section-intro {
+  color: rgba(200, 192, 215, 0.9);
+  margin-top: 8px;
+  margin-bottom: 0;
+  font-size: 1.05rem;
 }
 .experiment-list {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 100px;
-  margin-top: 20px;
+  margin-top: 28px;
 }
 .floating-list .experiment-card {
   will-change: transform;
-  transition: transform 0.2s ease;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 .experiment-card {
   display: grid;
   grid-template-columns: 120px 1fr;
   align-items: center;
-  gap: 16px;
+  gap: 20px;
   width: 100%;
   max-width: 520px;
-  padding: 12px 16px;
-  background: rgba(38, 42, 46, 0.95);
-  color: #babfcc;
+  padding: 18px 20px;
+  background: rgba(38, 34, 48, 0.6);
+  color: #d4cfde;
   text-decoration: none;
-  border-radius: 10px;
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 16px;
+  border: 1px solid rgba(220, 210, 235, 0.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   transition:
-    transform 0.2s,
-    box-shadow 0.2s;
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    border-color 0.2s ease;
   text-align: left;
 }
 .experiment-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+  transform: translateY(-4px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.2);
+  border-color: rgba(220, 210, 235, 0.15);
 }
 .thumb {
   width: 120px;
   height: 80px;
-  border-radius: 8px;
-  background: linear-gradient(135deg, #1d4ed8, #38bdf8);
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(180, 140, 220, 0.5), rgba(140, 180, 240, 0.5));
   position: relative;
   overflow: hidden;
 }
@@ -140,49 +179,56 @@ main.page {
   position: absolute;
   inset: 0;
   background: radial-gradient(
-    circle at 20% 30%,
-    rgba(255, 255, 255, 0.6),
-    transparent 45%
+    circle at 25% 30%,
+    rgba(255, 255, 255, 0.4),
+    transparent 50%
   );
-  opacity: 0.6;
+  opacity: 0.7;
 }
 .thumb-cube {
-  background: linear-gradient(135deg, #7c3aed, #22d3ee);
+  background: linear-gradient(135deg, rgba(160, 120, 220, 0.6), rgba(100, 180, 220, 0.5));
 }
 .thumb-swarm {
-  background: linear-gradient(135deg, #0ea5e9, #6366f1);
+  background: linear-gradient(135deg, rgba(100, 160, 240, 0.6), rgba(140, 120, 220, 0.5));
 }
 .thumb-vr {
-  background: linear-gradient(135deg, #f97316, #f43f5e);
+  background: linear-gradient(135deg, rgba(255, 160, 140, 0.5), rgba(240, 120, 160, 0.5));
 }
 .thumb-me {
-  background: linear-gradient(135deg, #22c55e, #14b8a6);
+  background: linear-gradient(135deg, rgba(120, 200, 180, 0.5), rgba(100, 180, 200, 0.5));
 }
 .thumb-music {
-  background: linear-gradient(135deg, #a855f7, #f43f5e);
+  background: linear-gradient(135deg, rgba(200, 140, 220, 0.5), rgba(240, 140, 180, 0.5));
 }
 .card-text .title {
-  font-size: 1.05em;
-  font-weight: 600;
+  font-family: "Outfit", system-ui, sans-serif;
+  font-size: 1.1em;
+  font-weight: 500;
   margin-bottom: 4px;
+  color: #ebe8f2;
 }
 .card-text .subtitle {
-  font-size: 0.9em;
-  color: #4b5563;
+  font-size: 0.92em;
+  color: rgba(180, 172, 195, 0.9);
 }
 .footer-link {
   display: inline-block;
-  margin-top: 6px;
-  margin-right: 15px;
-  color: #7dd3fc;
+  margin-top: 8px;
+  margin-right: 18px;
+  color: rgba(200, 180, 240, 0.95);
   text-decoration: none;
+  transition: color 0.2s ease;
 }
 .footer-link:hover {
+  color: #e0d8f0;
   text-decoration: underline;
 }
 .footer-section .container {
-  padding: 28px 36px;
+  padding: 32px 40px;
 }
 .footer-card h2 {
+  font-family: "Outfit", system-ui, sans-serif;
   margin-top: 0;
+  font-weight: 600;
+  color: #f2eef8;
 }

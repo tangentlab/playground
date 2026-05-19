@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bubble Poking Game</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      font-family: Inter, system-ui, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: radial-gradient(circle at top, #322b5c 0%, #0f0d14 55%, #070509 100%);
+      color: #f6f3ff;
+    }
+
+    body {
+      display: flex;
+      align-items: stretch;
+      justify-content: stretch;
+    }
+
+    canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+      cursor: crosshair;
+    }
+
+    .ui-panel {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      z-index: 2;
+      background: rgba(10, 8, 20, 0.72);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 18px;
+      padding: 18px 22px;
+      min-width: 220px;
+      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(18px);
+    }
+
+    .ui-panel h1 {
+      margin: 0 0 8px;
+      font-size: 1.2rem;
+      letter-spacing: -0.02em;
+      font-weight: 700;
+    }
+
+    .score-label {
+      margin: 0;
+      font-size: 0.92rem;
+      color: #bdb6ff;
+    }
+
+    .score-value {
+      margin: 10px 0 0;
+      font-size: 2.5rem;
+      font-weight: 700;
+      line-height: 1;
+      color: #fffbff;
+    }
+
+    .hint {
+      margin-top: 16px;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      color: #c8c2ee;
+    }
+
+    .hint strong {
+      color: #fff;
+    }
+
+    .footer {
+      position: absolute;
+      right: 20px;
+      bottom: 20px;
+      font-size: 0.82rem;
+      color: rgba(255, 255, 255, 0.6);
+      line-height: 1.4;
+      max-width: 280px;
+      text-align: right;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="gameCanvas" aria-label="Bubble poking game"></canvas>
+  <div class="ui-panel">
+    <h1>Bubble Poking</h1>
+    <p class="score-label">Bubbles popped</p>
+    <div class="score-value" id="scoreValue">0</div>
+    <p class="hint">Click the floating bubbles to pop them. Each tap adds to your score.</p>
+  </div>
+  <div class="footer">Refresh the page to restart the game.</div>
+  <script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const scoreValue = document.getElementById('scoreValue');
+
+    let width = window.innerWidth;
+    let height = window.innerHeight;
+    const bubbles = [];
+    const bubbleCount = 16;
+    let score = 0;
+    const popEffects = [];
+
+    function resizeCanvas() {
+      width = window.innerWidth;
+      height = window.innerHeight;
+      canvas.width = width * devicePixelRatio;
+      canvas.height = height * devicePixelRatio;
+      canvas.style.width = width + 'px';
+      canvas.style.height = height + 'px';
+      ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+    }
+
+    function randomBetween(min, max) {
+      return min + Math.random() * (max - min);
+    }
+
+    function createBubble() {
+      const radius = randomBetween(28, 60);
+      return {
+        x: randomBetween(radius, width - radius),
+        y: randomBetween(radius, height - radius),
+        vx: randomBetween(-0.6, 0.6),
+        vy: randomBetween(-0.4, 0.4),
+        radius,
+        hue: randomBetween(180, 270),
+        popped: false,
+        respawnAt: 0
+      };
+    }
+
+    function initBubbles() {
+      bubbles.length = 0;
+      for (let i = 0; i < bubbleCount; i += 1) {
+        bubbles.push(createBubble());
+      }
+    }
+
+    function drawBubble(bubble) {
+      const gradient = ctx.createRadialGradient(
+        bubble.x - bubble.radius * 0.3,
+        bubble.y - bubble.radius * 0.3,
+        bubble.radius * 0.12,
+        bubble.x,
+        bubble.y,
+        bubble.radius
+      );
+      gradient.addColorStop(0, `hsla(${bubble.hue}, 92%, 92%, 0.88)`);
+      gradient.addColorStop(0.5, `hsla(${bubble.hue}, 78%, 75%, 0.44)`);
+      gradient.addColorStop(1, `hsla(${bubble.hue}, 86%, 62%, 0.18)`);
+
+      ctx.beginPath();
+      ctx.fillStyle = gradient;
+      ctx.arc(bubble.x, bubble.y, bubble.radius, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.strokeStyle = `rgba(255,255,255,0.18)`;
+      ctx.lineWidth = Math.max(1, bubble.radius * 0.06);
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.strokeStyle = `rgba(255,255,255,0.8)`;
+      ctx.lineWidth = 2;
+      ctx.arc(bubble.x - bubble.radius * 0.25, bubble.y - bubble.radius * 0.25, bubble.radius * 0.3, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+
+    function updateBubble(bubble, delta) {
+      if (bubble.popped) {
+        if (bubble.respawnAt > performance.now()) return;
+        Object.assign(bubble, createBubble());
+        return;
+      }
+
+      bubble.x += bubble.vx * delta;
+      bubble.y += bubble.vy * delta;
+      bubble.vx *= 0.998;
+      bubble.vy *= 0.998;
+
+      if (bubble.x - bubble.radius < 0) {
+        bubble.x = bubble.radius;
+        bubble.vx = Math.abs(bubble.vx);
+      }
+      if (bubble.x + bubble.radius > width) {
+        bubble.x = width - bubble.radius;
+        bubble.vx = -Math.abs(bubble.vx);
+      }
+      if (bubble.y - bubble.radius < 0) {
+        bubble.y = bubble.radius;
+        bubble.vy = Math.abs(bubble.vy);
+      }
+      if (bubble.y + bubble.radius > height) {
+        bubble.y = height - bubble.radius;
+        bubble.vy = -Math.abs(bubble.vy);
+      }
+    }
+
+    function drawPopEffect(effect) {
+      const progress = Math.min(1, (performance.now() - effect.start) / effect.duration);
+      const alpha = 1 - progress;
+      const radius = effect.radius + progress * 28;
+
+      ctx.beginPath();
+      ctx.strokeStyle = `rgba(255, 255, 255, ${alpha * 0.9})`;
+      ctx.lineWidth = Math.max(1, 6 * (1 - progress));
+      ctx.arc(effect.x, effect.y, radius, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+
+    function removeExpiredEffects() {
+      for (let i = popEffects.length - 1; i >= 0; i -= 1) {
+        if (performance.now() - popEffects[i].start > popEffects[i].duration) {
+          popEffects.splice(i, 1);
+        }
+      }
+    }
+
+    function animate(now) {
+      ctx.clearRect(0, 0, width, height);
+      const delta = 0.6;
+
+      bubbles.forEach((bubble) => {
+        updateBubble(bubble, delta);
+        if (!bubble.popped) {
+          drawBubble(bubble);
+        }
+      });
+
+      popEffects.forEach(drawPopEffect);
+      removeExpiredEffects();
+      requestAnimationFrame(animate);
+    }
+
+    function getCanvasPosition(event) {
+      const rect = canvas.getBoundingClientRect();
+      return {
+        x: (event.clientX - rect.left),
+        y: (event.clientY - rect.top)
+      };
+    }
+
+    function handleClick(event) {
+      const { x, y } = getCanvasPosition(event);
+      for (let i = bubbles.length - 1; i >= 0; i -= 1) {
+        const bubble = bubbles[i];
+        if (bubble.popped) continue;
+        const dx = x - bubble.x;
+        const dy = y - bubble.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < bubble.radius) {
+          bubble.popped = true;
+          bubble.respawnAt = performance.now() + 700;
+          score += 1;
+          scoreValue.textContent = score;
+          popEffects.push({
+            x: bubble.x,
+            y: bubble.y,
+            radius: bubble.radius * 0.7,
+            start: performance.now(),
+            duration: 340
+          });
+          break;
+        }
+      }
+    }
+
+    window.addEventListener('resize', () => {
+      resizeCanvas();
+      initBubbles();
+    });
+
+    canvas.addEventListener('pointerdown', handleClick);
+
+    resizeCanvas();
+    initBubbles();
+    requestAnimationFrame(animate);
+  </script>
+</body>
+</html>

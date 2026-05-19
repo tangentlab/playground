@@ -61,7 +61,7 @@ main.page {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 80px 20px;
+  padding: 20px 20px;
 }
 .hero {
   text-align: center;
@@ -78,8 +78,8 @@ main.page {
     inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 .hero-model {
-  width: 400px;
-  height: 400px;
+  width: 600px;
+  height: 600px;
   margin: 0 auto 24px;
 }
 .hero-model canvas {
@@ -138,7 +138,9 @@ main.page {
 }
 .floating-list .experiment-card {
   will-change: transform;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
 }
 .experiment-card {
   display: grid;
@@ -170,7 +172,11 @@ main.page {
   width: 120px;
   height: 80px;
   border-radius: 12px;
-  background: linear-gradient(135deg, rgba(180, 140, 220, 0.5), rgba(140, 180, 240, 0.5));
+  background: linear-gradient(
+    135deg,
+    rgba(180, 140, 220, 0.5),
+    rgba(140, 180, 240, 0.5)
+  );
   position: relative;
   overflow: hidden;
 }
@@ -186,19 +192,39 @@ main.page {
   opacity: 0.7;
 }
 .thumb-cube {
-  background: linear-gradient(135deg, rgba(160, 120, 220, 0.6), rgba(100, 180, 220, 0.5));
+  background: linear-gradient(
+    135deg,
+    rgba(160, 120, 220, 0.6),
+    rgba(100, 180, 220, 0.5)
+  );
 }
 .thumb-swarm {
-  background: linear-gradient(135deg, rgba(100, 160, 240, 0.6), rgba(140, 120, 220, 0.5));
+  background: linear-gradient(
+    135deg,
+    rgba(100, 160, 240, 0.6),
+    rgba(140, 120, 220, 0.5)
+  );
 }
 .thumb-vr {
-  background: linear-gradient(135deg, rgba(255, 160, 140, 0.5), rgba(240, 120, 160, 0.5));
+  background: linear-gradient(
+    135deg,
+    rgba(255, 160, 140, 0.5),
+    rgba(240, 120, 160, 0.5)
+  );
 }
 .thumb-me {
-  background: linear-gradient(135deg, rgba(120, 200, 180, 0.5), rgba(100, 180, 200, 0.5));
+  background: linear-gradient(
+    135deg,
+    rgba(120, 200, 180, 0.5),
+    rgba(100, 180, 200, 0.5)
+  );
 }
 .thumb-music {
-  background: linear-gradient(135deg, rgba(200, 140, 220, 0.5), rgba(240, 140, 180, 0.5));
+  background: linear-gradient(
+    135deg,
+    rgba(200, 140, 220, 0.5),
+    rgba(240, 140, 180, 0.5)
+  );
 }
 .card-text .title {
   font-family: "Outfit", system-ui, sans-serif;

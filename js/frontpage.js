@@ -13,11 +13,11 @@ function resizeCanvas() {
   canvas.height = window.innerHeight;
 }
 
-function createParticles(count = 140) {
+function createParticles(count = 240) {
   particles = Array.from({ length: count }).map(() => ({
     x: Math.random() * window.innerWidth,
     y: Math.random() * window.innerHeight,
-    radius: 1 + Math.random() * 2.5,
+    radius: 1 + Math.random() * 5.5,
     speed: 0.2 + Math.random() * 0.6,
     drift: (Math.random() - 0.5) * 0.4,
   }));
@@ -126,14 +126,18 @@ function onHeroPointerMove(e) {
   const dy = e.clientY - heroDrag.lastY;
   heroModel.rotation.y += dx * ROTATE_SPEED;
   heroModel.rotation.x += dy * ROTATE_SPEED;
-  heroModel.rotation.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, heroModel.rotation.x));
+  heroModel.rotation.x = Math.max(
+    -Math.PI / 2,
+    Math.min(Math.PI / 2, heroModel.rotation.x),
+  );
   heroDrag.lastX = e.clientX;
   heroDrag.lastY = e.clientY;
 }
 
 function onHeroPointerUp(e) {
   heroDrag.active = false;
-  if (e && e.pointerId !== undefined) heroCanvas.releasePointerCapture(e.pointerId);
+  if (e && e.pointerId !== undefined)
+    heroCanvas.releasePointerCapture(e.pointerId);
   heroCanvas.style.cursor = "grab";
 }
 

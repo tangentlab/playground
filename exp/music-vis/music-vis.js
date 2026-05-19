@@ -47,12 +47,15 @@ for (let i = 0; i < particleCount; i++) {
   const x = r * Math.sin(phi) * Math.cos(theta);
   const y = r * Math.sin(phi) * Math.sin(theta);
   const z = r * Math.cos(phi);
+
   positions[i * 3] = x;
   positions[i * 3 + 1] = y;
   positions[i * 3 + 2] = z;
+
   basePositions[i * 3] = x;
   basePositions[i * 3 + 1] = y;
   basePositions[i * 3 + 2] = z;
+
   colors[i * 3] = 0.2;
   colors[i * 3 + 1] = 0.7;
   colors[i * 3 + 2] = 1.0;
@@ -165,6 +168,7 @@ function analyzeAudio() {
   }
   const energy = sum / dataArray.length / 255;
   const bass = bassSum / bassBins / 255;
+
   return { energy, bass };
 }
 

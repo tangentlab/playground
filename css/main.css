@@ -1,3 +1,9 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 body {
   font-family: "DM Sans", system-ui, sans-serif;
   margin: 0;
@@ -5,10 +11,12 @@ body {
   color: #e8e4ef;
   min-height: 100vh;
   font-weight: 400;
+  overflow-x: hidden;
 }
 main.page {
   position: relative;
   z-index: 2;
+  overflow-x: hidden;
 }
 #particle-canvas {
   position: fixed;
@@ -57,11 +65,16 @@ main.page {
   );
 }
 .section {
-  min-height: 100vh;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px 20px;
+  padding: 52px 20px;
+}
+.hero.section {
+  min-height: 82vh;
+  padding-top: 36px;
+  padding-bottom: 40px;
 }
 .hero {
   text-align: center;
@@ -107,6 +120,7 @@ main.page {
   font-weight: 400;
 }
 .container {
+  min-width: 0;
   background: rgba(28, 24, 38, 0.5);
   padding: 40px 48px;
   border-radius: 20px;
@@ -115,7 +129,7 @@ main.page {
   -webkit-backdrop-filter: blur(16px);
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
   text-align: center;
-  max-width: 900px;
+  width: min(1120px, calc(100% - 40px));
 }
 .container h2 {
   font-family: "Outfit", system-ui, sans-serif;
@@ -130,11 +144,10 @@ main.page {
   font-size: 1.05rem;
 }
 .experiment-list {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 100px;
-  margin-top: 28px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 30px;
 }
 .floating-list .experiment-card {
   will-change: transform;
@@ -143,13 +156,10 @@ main.page {
     box-shadow 0.25s ease;
 }
 .experiment-card {
-  display: grid;
-  grid-template-columns: 120px 1fr;
-  align-items: center;
-  gap: 20px;
-  width: 100%;
-  max-width: 520px;
-  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
   background: rgba(38, 34, 48, 0.6);
   color: #d4cfde;
   text-decoration: none;
@@ -169,9 +179,8 @@ main.page {
   border-color: rgba(220, 210, 235, 0.15);
 }
 .thumb {
-  width: 120px;
-  height: 80px;
-  border-radius: 12px;
+  width: 100%;
+  aspect-ratio: 16 / 10;
   background: linear-gradient(
     135deg,
     rgba(180, 140, 220, 0.5),
@@ -180,16 +189,15 @@ main.page {
   position: relative;
   overflow: hidden;
 }
-.thumb::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(
-    circle at 25% 30%,
-    rgba(255, 255, 255, 0.4),
-    transparent 50%
-  );
-  opacity: 0.7;
+.thumb img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  transition: transform 0.35s ease;
+}
+.experiment-card:hover .thumb img {
+  transform: scale(1.04);
 }
 .thumb-cube {
   background: linear-gradient(
@@ -237,8 +245,11 @@ main.page {
   font-family: "Outfit", system-ui, sans-serif;
   font-size: 1.1em;
   font-weight: 500;
-  margin-bottom: 4px;
+  margin: 0 0 4px;
   color: #ebe8f2;
+}
+.card-text {
+  padding: 16px 18px 18px;
 }
 .card-text .subtitle {
   font-size: 0.92em;
@@ -264,4 +275,49 @@ main.page {
   margin-top: 0;
   font-weight: 600;
   color: #f2eef8;
+}
+
+@media (max-width: 720px) {
+  .section {
+    padding: 36px 16px;
+  }
+
+  .hero.section {
+    min-height: auto;
+    padding-top: 24px;
+  }
+
+  .container {
+    width: calc(100vw - 32px);
+    padding: 28px 18px;
+  }
+
+  .hero-card {
+    min-width: 0;
+    width: calc(100vw - 32px);
+    padding: 28px 18px;
+  }
+
+  .hero-model {
+    width: min(100%, 280px);
+    height: 280px;
+    margin-bottom: 18px;
+  }
+
+  .hero-tagline,
+  .section-intro {
+    max-width: 24ch;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .experiment-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (min-width: 721px) and (max-width: 960px) {
+  .experiment-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }

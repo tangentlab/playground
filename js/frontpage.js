@@ -4,7 +4,9 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 const layers = Array.from(document.querySelectorAll(".parallax-layer"));
 const canvas = document.getElementById("particle-canvas");
 const ctx = canvas.getContext("2d");
-const floatingCards = Array.from(document.querySelectorAll(".experiment-card"));
+const floatingCards = Array.from(
+  document.querySelectorAll(".floating-list .experiment-card"),
+);
 let particles = [];
 let lastScrollY = window.scrollY;
 

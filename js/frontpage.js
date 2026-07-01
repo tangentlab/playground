@@ -96,11 +96,106 @@ heroKey.position.set(1.2, 1.4, 2);
 heroScene.add(heroKey);
 
 let heroModel = null;
+const headTextureCanvas = document.createElement("canvas");
+headTextureCanvas.width = 384;
+headTextureCanvas.height = 384;
+const headTextureCtx = headTextureCanvas.getContext("2d");
+const headTexture = new THREE.CanvasTexture(headTextureCanvas);
+headTexture.colorSpace = THREE.SRGBColorSpace;
+headTexture.wrapS = THREE.RepeatWrapping;
+headTexture.wrapT = THREE.RepeatWrapping;
+headTexture.center.set(0.5, 0.5);
+headTexture.repeat.set(2.35, 2.35);
+
+const headMaterial = new THREE.MeshStandardMaterial({
+  color: 0xffffff,
+  map: headTexture,
+  emissive: 0x2e1846,
+  emissiveMap: headTexture,
+  emissiveIntensity: 0.58,
+  metalness: 0.04,
+  roughness: 0.26,
+});
+
+function drawHeadTexture(timeSeconds) {
+  const { width, height } = headTextureCanvas;
+  const ctxGradient = headTextureCtx.createLinearGradient(
+    Math.sin(timeSeconds * 0.27) * width * 0.5 + width * 0.5,
+    0,
+    Math.cos(timeSeconds * 0.19) * width * 0.5 + width * 0.5,
+    height,
+  );
+  ctxGradient.addColorStop(0, "#00e7d0");
+  ctxGradient.addColorStop(0.3, "#6f59ff");
+  ctxGradient.addColorStop(0.58, "#ff4fa6");
+  ctxGradient.addColorStop(0.78, "#ff9f45");
+  ctxGradient.addColorStop(1, "#fff275");
+
+  headTextureCtx.fillStyle = ctxGradient;
+  headTextureCtx.fillRect(0, 0, width, height);
+  headTextureCtx.globalCompositeOperation = "screen";
+
+  for (let i = 0; i < 18; i += 1) {
+    const phase = timeSeconds * (0.42 + i * 0.018) + i * 0.75;
+    const centerY = height * (0.5 + Math.sin(phase) * 0.34);
+    const amplitude = 22 + Math.sin(timeSeconds * 0.31 + i) * 12;
+    headTextureCtx.beginPath();
+    for (let x = -24; x <= width + 24; x += 12) {
+      const y =
+        centerY +
+        Math.sin(x * 0.026 + phase) * amplitude +
+        Math.cos(x * 0.011 - phase * 1.8) * 16;
+      if (x === -24) {
+        headTextureCtx.moveTo(x, y);
+      } else {
+        headTextureCtx.lineTo(x, y);
+      }
+    }
+    headTextureCtx.lineWidth = 7 + (i % 5);
+    headTextureCtx.strokeStyle = `hsla(${(timeSeconds * 36 + i * 24) % 360}, 98%, 70%, 0.34)`;
+    headTextureCtx.stroke();
+  }
+
+  headTextureCtx.globalCompositeOperation = "multiply";
+  headTextureCtx.fillStyle = "rgba(18, 8, 36, 0.3)";
+  for (let y = 0; y < height; y += 18) {
+    const offset = Math.sin(timeSeconds * 1.2 + y * 0.04) * 18;
+    headTextureCtx.fillRect(offset, y, width, 5);
+  }
+
+  headTextureCtx.globalCompositeOperation = "source-over";
+  headTextureCtx.fillStyle = "rgba(255, 255, 255, 0.2)";
+  for (let i = 0; i < 28; i += 1) {
+    const x =
+      (Math.sin(timeSeconds * (0.33 + i * 0.01) + i * 1.7) * 0.5 + 0.5) *
+      width;
+    const y =
+      (Math.cos(timeSeconds * (0.29 + i * 0.012) + i * 2.3) * 0.5 + 0.5) *
+      height;
+    headTextureCtx.beginPath();
+    headTextureCtx.arc(x, y, 2 + (i % 5), 0, Math.PI * 2);
+    headTextureCtx.fill();
+  }
+
+  headTexture.offset.x = Math.sin(timeSeconds * 0.18) * 0.18;
+  headTexture.offset.y = timeSeconds * 0.045;
+  headTexture.rotation = Math.sin(timeSeconds * 0.16) * 0.18;
+  headTexture.needsUpdate = true;
+}
+
+function applyHeadMaterial(model) {
+  model.traverse((child) => {
+    if (!child.isMesh) return;
+    child.material = headMaterial;
+  });
+}
+
 const loader = new GLTFLoader();
 const modelUrl = new URL("../media/ryan_nontext.glb", import.meta.url);
 loader.load(modelUrl.href, (gltf) => {
   heroModel = gltf.scene;
   heroModel.scale.set(5, 5, 5);
+  applyHeadMaterial(heroModel);
   heroScene.add(heroModel);
 });
 
@@ -151,6 +246,7 @@ heroCanvas.style.cursor = "grab";
 
 function animateHero() {
   requestAnimationFrame(animateHero);
+  drawHeadTexture(performance.now() * 0.001);
   if (heroModel && !heroDrag.active) {
     heroModel.rotation.y += 0.004;
   }

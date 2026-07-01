@@ -79,7 +79,6 @@ createParticles();
 updateParallax();
 
 const heroCanvas = document.getElementById("hero-canvas");
-const arButton = document.getElementById("ar-button");
 const heroScene = new THREE.Scene();
 const heroCamera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
 heroCamera.position.set(0, 2, 10);
@@ -99,6 +98,7 @@ heroScene.add(heroKey);
 
 let heroModel = null;
 let arSession = null;
+let arLaunchAvailable = false;
 const heroRaycaster = new THREE.Raycaster();
 const heroPointer = new THREE.Vector2();
 const polygonModes = ["shrink", "rotate", "explode"];
@@ -465,22 +465,21 @@ function isLikelyMobileDevice() {
   );
 }
 
-async function setupARButton() {
-  if (!arButton || !isLikelyMobileDevice()) return;
-  arButton.hidden = false;
-  arButton.disabled = true;
+async function setupCanvasARLaunch() {
+  if (!isLikelyMobileDevice()) return;
+  heroCanvas.title = "Tap the head to transform it.";
 
-  if (!window.isSecureContext || !navigator.xr) {
-    arButton.title = "AR needs a secure mobile browser.";
-    return;
-  }
+  if (!window.isSecureContext || !navigator.xr) return;
 
   try {
     const isSupported = await navigator.xr.isSessionSupported("immersive-ar");
-    arButton.disabled = !isSupported;
-    arButton.title = isSupported ? "View in AR" : "AR is not available on this browser.";
+    arLaunchAvailable = isSupported;
+    if (isSupported) {
+      heroCanvas.title = "Tap the head to view it in AR.";
+      heroCanvas.style.cursor = "pointer";
+    }
   } catch {
-    arButton.title = "AR is not available on this browser.";
+    arLaunchAvailable = false;
   }
 }
 
@@ -496,7 +495,6 @@ async function startARSession() {
   arSession = session;
   applyARPose();
   heroCanvas.style.cursor = "default";
-  if (arButton) arButton.textContent = "EXIT";
 
   session.addEventListener(
     "end",
@@ -504,8 +502,7 @@ async function startARSession() {
       arSession = null;
       applyDesktopPose();
       resizeHeroCanvas();
-      heroCanvas.style.cursor = "grab";
-      if (arButton) arButton.textContent = "AR";
+      heroCanvas.style.cursor = arLaunchAvailable ? "pointer" : "grab";
     },
     { once: true },
   );
@@ -523,10 +520,9 @@ async function toggleARSession() {
   try {
     await startARSession();
   } catch {
-    if (arButton) {
-      arButton.disabled = true;
-      arButton.title = "AR could not start on this browser.";
-    }
+    arLaunchAvailable = false;
+    heroCanvas.title = "AR could not start on this browser.";
+    heroCanvas.style.cursor = "grab";
   }
 }
 
@@ -562,8 +558,13 @@ function onHeroPointerUp(e) {
   heroDrag.active = false;
   if (e && e.pointerId !== undefined)
     heroCanvas.releasePointerCapture(e.pointerId);
-  heroCanvas.style.cursor = "grab";
-  if (shouldCycle) cyclePolygonMode();
+  heroCanvas.style.cursor = arLaunchAvailable ? "pointer" : "grab";
+  if (!shouldCycle) return;
+  if (arLaunchAvailable || arSession) {
+    toggleARSession();
+    return;
+  }
+  cyclePolygonMode();
 }
 
 heroCanvas.addEventListener("pointerdown", onHeroPointerDown);
@@ -571,7 +572,6 @@ heroCanvas.addEventListener("pointermove", onHeroPointerMove);
 heroCanvas.addEventListener("pointerup", onHeroPointerUp);
 heroCanvas.addEventListener("pointerleave", onHeroPointerUp);
 heroCanvas.style.cursor = "grab";
-if (arButton) arButton.addEventListener("click", toggleARSession);
 
 function renderHero(timeMs) {
   const timeSeconds = (timeMs || performance.now()) * 0.001;
@@ -584,7 +584,7 @@ function renderHero(timeMs) {
 }
 
 resizeHeroCanvas();
-setupARButton();
+setupCanvasARLaunch();
 heroRenderer.setAnimationLoop(renderHero);
 
 window.addEventListener("resize", resizeHeroCanvas);

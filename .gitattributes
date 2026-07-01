@@ -43,5 +43,7 @@
 *.pict filter=lfs diff=lfs merge=lfs -text
 *.png filter=lfs diff=lfs merge=lfs -text
 
+# Keep site thumbnails as real files so GitHub Pages can serve them directly.
+media/thumbs/*.png -filter -diff -merge -text
 
 *.data filter=lfs diff=lfs merge=lfs -text

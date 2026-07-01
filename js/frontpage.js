@@ -104,6 +104,7 @@ const polygonUniforms = {
   uShrink: { value: 0 },
   uRotate: { value: 0 },
   uExplosion: { value: 0 },
+  uPulse: { value: 0 },
 };
 const polygonState = {
   modeIndex: -1,
@@ -128,17 +129,11 @@ const headMaterial = new THREE.MeshStandardMaterial({
   emissiveIntensity: 0.58,
   metalness: 0.04,
   roughness: 0.26,
+  opacity: 0.86,
+  transparent: true,
 });
 
-headMaterial.onBeforeCompile = (shader) => {
-  shader.uniforms.uTime = polygonUniforms.uTime;
-  shader.uniforms.uShrink = polygonUniforms.uShrink;
-  shader.uniforms.uRotate = polygonUniforms.uRotate;
-  shader.uniforms.uExplosion = polygonUniforms.uExplosion;
-  shader.vertexShader = shader.vertexShader.replace(
-    "#include <common>",
-    `#include <common>
-attribute vec3 aFaceCenter;
+const polygonVertexCommon = `attribute vec3 aFaceCenter;
 attribute vec3 aExplodeDir;
 attribute vec3 aSpinAxis;
 attribute float aTriPhase;
@@ -146,6 +141,9 @@ uniform float uTime;
 uniform float uShrink;
 uniform float uRotate;
 uniform float uExplosion;
+uniform float uPulse;
+varying float vHoloY;
+varying float vHoloPhase;
 
 mat3 axisRotationMatrix(vec3 axis, float angle) {
   axis = normalize(axis);
@@ -163,11 +161,9 @@ mat3 axisRotationMatrix(vec3 axis, float angle) {
     oc * axis.y * axis.z + axis.x * s,
     oc * axis.z * axis.z + c
   );
-}`,
-  );
-  shader.vertexShader = shader.vertexShader.replace(
-    "#include <begin_vertex>",
-    `vec3 faceCenter = aFaceCenter;
+}`;
+
+const polygonBeginVertex = `vec3 faceCenter = aFaceCenter;
 vec3 polygonOffset = position - faceCenter;
 float shrinkScale = mix(1.0, 0.48, uShrink);
 float spinWave = sin(uTime * 1.65 + aTriPhase * 6.28318);
@@ -176,11 +172,83 @@ float explodeSpin = uExplosion * sin(uTime * 2.8 + aTriPhase * 9.0) * 0.75;
 polygonOffset = axisRotationMatrix(aSpinAxis, spinAngle + explodeSpin) * polygonOffset;
 vec3 transformed = faceCenter + polygonOffset * shrinkScale;
 float explosionStagger = 0.62 + aTriPhase * 0.72;
-transformed += aExplodeDir * uExplosion * explosionStagger;`,
+transformed += aExplodeDir * uExplosion * explosionStagger;
+vHoloY = transformed.y;
+vHoloPhase = aTriPhase;`;
+
+function applyPolygonVertexShader(shader) {
+  shader.uniforms.uTime = polygonUniforms.uTime;
+  shader.uniforms.uShrink = polygonUniforms.uShrink;
+  shader.uniforms.uRotate = polygonUniforms.uRotate;
+  shader.uniforms.uExplosion = polygonUniforms.uExplosion;
+  shader.uniforms.uPulse = polygonUniforms.uPulse;
+  shader.vertexShader = shader.vertexShader.replace(
+    "#include <common>",
+    `#include <common>
+${polygonVertexCommon}`,
+  );
+  shader.vertexShader = shader.vertexShader.replace(
+    "#include <begin_vertex>",
+    polygonBeginVertex,
+  );
+}
+
+headMaterial.onBeforeCompile = (shader) => {
+  applyPolygonVertexShader(shader);
+  shader.fragmentShader = shader.fragmentShader.replace(
+    "#include <common>",
+    `#include <common>
+uniform float uTime;
+uniform float uPulse;
+varying float vHoloY;
+varying float vHoloPhase;`,
+  );
+  shader.fragmentShader = shader.fragmentShader.replace(
+    "#include <color_fragment>",
+    `#include <color_fragment>
+float scan = smoothstep(0.72, 1.0, sin((vHoloY * 22.0) - (uTime * 4.8)));
+float glitch = step(0.965, sin((vHoloY * 51.0) + (uTime * 9.0) + (vHoloPhase * 17.0)));
+float pulseBand = smoothstep(0.52, 1.0, sin((vHoloY * 8.0) - (uTime * 10.0))) * uPulse;
+vec3 holoBlue = vec3(0.12, 0.92, 1.0);
+vec3 holoPink = vec3(1.0, 0.22, 0.72);
+diffuseColor.rgb = mix(diffuseColor.rgb, holoBlue, scan * 0.34 + pulseBand * 0.42);
+diffuseColor.rgb += holoPink * glitch * (0.16 + uPulse * 0.24);
+diffuseColor.a *= 0.72 + scan * 0.18 + pulseBand * 0.28;`,
   );
 };
 
 headMaterial.customProgramCacheKey = () => "animated-head-polygons";
+
+const wireMaterial = new THREE.MeshBasicMaterial({
+  color: 0x9efcff,
+  transparent: true,
+  opacity: 0.3,
+  wireframe: true,
+  blending: THREE.AdditiveBlending,
+  depthWrite: false,
+});
+
+wireMaterial.onBeforeCompile = (shader) => {
+  applyPolygonVertexShader(shader);
+  shader.fragmentShader = shader.fragmentShader.replace(
+    "#include <common>",
+    `#include <common>
+uniform float uTime;
+uniform float uPulse;
+varying float vHoloY;
+varying float vHoloPhase;`,
+  );
+  shader.fragmentShader = shader.fragmentShader.replace(
+    "#include <color_fragment>",
+    `#include <color_fragment>
+float scan = smoothstep(0.58, 1.0, sin((vHoloY * 18.0) - (uTime * 5.6)));
+float flicker = 0.72 + sin(uTime * 16.0 + vHoloPhase * 8.0) * 0.18;
+diffuseColor.rgb += vec3(0.25, 0.95, 1.0) * (scan * 0.55 + uPulse * 0.75);
+diffuseColor.a *= flicker + uPulse * 1.25;`,
+  );
+};
+
+wireMaterial.customProgramCacheKey = () => "animated-head-wireframe";
 
 function easeInOut(t) {
   return t * t * (3 - 2 * t);
@@ -192,6 +260,10 @@ function updatePolygonTransform(timeSeconds) {
     Math.min((timeSeconds - polygonState.changedAt) / 0.72, 1),
   );
   polygonUniforms.uTime.value = timeSeconds;
+  polygonUniforms.uPulse.value = Math.max(
+    0,
+    1 - (timeSeconds - polygonState.changedAt) / 0.95,
+  );
   polygonUniforms.uShrink.value = mode === "shrink" ? transition : 0;
   polygonUniforms.uRotate.value = mode === "rotate" ? transition : 0;
 
@@ -322,10 +394,16 @@ function addPolygonAttributes(geometry) {
 }
 
 function applyHeadMaterial(model) {
+  const meshes = [];
   model.traverse((child) => {
-    if (!child.isMesh) return;
-    child.geometry = addPolygonAttributes(child.geometry);
-    child.material = headMaterial;
+    if (child.isMesh) meshes.push(child);
+  });
+  meshes.forEach((mesh) => {
+    mesh.geometry = addPolygonAttributes(mesh.geometry);
+    mesh.material = headMaterial;
+    const wireMesh = new THREE.Mesh(mesh.geometry, wireMaterial);
+    wireMesh.raycast = () => {};
+    mesh.add(wireMesh);
   });
 }
 

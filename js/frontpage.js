@@ -96,6 +96,19 @@ heroKey.position.set(1.2, 1.4, 2);
 heroScene.add(heroKey);
 
 let heroModel = null;
+const heroRaycaster = new THREE.Raycaster();
+const heroPointer = new THREE.Vector2();
+const polygonModes = ["shrink", "rotate", "explode"];
+const polygonUniforms = {
+  uTime: { value: 0 },
+  uShrink: { value: 0 },
+  uRotate: { value: 0 },
+  uExplosion: { value: 0 },
+};
+const polygonState = {
+  modeIndex: -1,
+  changedAt: 0,
+};
 const headTextureCanvas = document.createElement("canvas");
 headTextureCanvas.width = 384;
 headTextureCanvas.height = 384;
@@ -116,6 +129,81 @@ const headMaterial = new THREE.MeshStandardMaterial({
   metalness: 0.04,
   roughness: 0.26,
 });
+
+headMaterial.onBeforeCompile = (shader) => {
+  shader.uniforms.uTime = polygonUniforms.uTime;
+  shader.uniforms.uShrink = polygonUniforms.uShrink;
+  shader.uniforms.uRotate = polygonUniforms.uRotate;
+  shader.uniforms.uExplosion = polygonUniforms.uExplosion;
+  shader.vertexShader = shader.vertexShader.replace(
+    "#include <common>",
+    `#include <common>
+attribute vec3 aFaceCenter;
+attribute vec3 aExplodeDir;
+attribute vec3 aSpinAxis;
+attribute float aTriPhase;
+uniform float uTime;
+uniform float uShrink;
+uniform float uRotate;
+uniform float uExplosion;
+
+mat3 axisRotationMatrix(vec3 axis, float angle) {
+  axis = normalize(axis);
+  float s = sin(angle);
+  float c = cos(angle);
+  float oc = 1.0 - c;
+  return mat3(
+    oc * axis.x * axis.x + c,
+    oc * axis.x * axis.y - axis.z * s,
+    oc * axis.z * axis.x + axis.y * s,
+    oc * axis.x * axis.y + axis.z * s,
+    oc * axis.y * axis.y + c,
+    oc * axis.y * axis.z - axis.x * s,
+    oc * axis.z * axis.x - axis.y * s,
+    oc * axis.y * axis.z + axis.x * s,
+    oc * axis.z * axis.z + c
+  );
+}`,
+  );
+  shader.vertexShader = shader.vertexShader.replace(
+    "#include <begin_vertex>",
+    `vec3 faceCenter = aFaceCenter;
+vec3 polygonOffset = position - faceCenter;
+float shrinkScale = mix(1.0, 0.48, uShrink);
+float spinWave = sin(uTime * 1.65 + aTriPhase * 6.28318);
+float spinAngle = uRotate * (1.25 + spinWave * 0.7);
+float explodeSpin = uExplosion * sin(uTime * 2.8 + aTriPhase * 9.0) * 0.75;
+polygonOffset = axisRotationMatrix(aSpinAxis, spinAngle + explodeSpin) * polygonOffset;
+vec3 transformed = faceCenter + polygonOffset * shrinkScale;
+float explosionStagger = 0.62 + aTriPhase * 0.72;
+transformed += aExplodeDir * uExplosion * explosionStagger;`,
+  );
+};
+
+headMaterial.customProgramCacheKey = () => "animated-head-polygons";
+
+function easeInOut(t) {
+  return t * t * (3 - 2 * t);
+}
+
+function updatePolygonTransform(timeSeconds) {
+  const mode = polygonModes[polygonState.modeIndex];
+  const transition = easeInOut(
+    Math.min((timeSeconds - polygonState.changedAt) / 0.72, 1),
+  );
+  polygonUniforms.uTime.value = timeSeconds;
+  polygonUniforms.uShrink.value = mode === "shrink" ? transition : 0;
+  polygonUniforms.uRotate.value = mode === "rotate" ? transition : 0;
+
+  if (mode === "explode") {
+    const elapsed = timeSeconds - polygonState.changedAt;
+    const blast = Math.sin(Math.min(elapsed / 1.15, 1) * Math.PI);
+    const rumble = 0.18 + Math.sin(timeSeconds * 2.6) * 0.08;
+    polygonUniforms.uExplosion.value = transition * (0.38 + blast * 0.72 + rumble);
+  } else {
+    polygonUniforms.uExplosion.value = 0;
+  }
+}
 
 function drawHeadTexture(timeSeconds) {
   const { width, height } = headTextureCanvas;
@@ -183,11 +271,80 @@ function drawHeadTexture(timeSeconds) {
   headTexture.needsUpdate = true;
 }
 
+function addPolygonAttributes(geometry) {
+  const source = geometry.index ? geometry.toNonIndexed() : geometry.clone();
+  const position = source.getAttribute("position");
+  const faceCenters = [];
+  const explodeDirs = [];
+  const spinAxes = [];
+  const phases = [];
+  const center = new THREE.Vector3();
+  const vertexA = new THREE.Vector3();
+  const vertexB = new THREE.Vector3();
+  const vertexC = new THREE.Vector3();
+  const normal = new THREE.Vector3();
+  const edgeAB = new THREE.Vector3();
+  const edgeAC = new THREE.Vector3();
+
+  for (let i = 0; i < position.count; i += 3) {
+    vertexA.fromBufferAttribute(position, i);
+    vertexB.fromBufferAttribute(position, i + 1);
+    vertexC.fromBufferAttribute(position, i + 2);
+    center.copy(vertexA).add(vertexB).add(vertexC).divideScalar(3);
+    normal
+      .crossVectors(
+        edgeAB.subVectors(vertexB, vertexA),
+        edgeAC.subVectors(vertexC, vertexA),
+      )
+      .normalize();
+    const explodeDir = normal.clone().multiplyScalar(0.55).add(center).normalize();
+    const phase = Math.abs(Math.sin(center.x * 21.17 + center.y * 13.31 + center.z * 9.73));
+    const spinAxis = new THREE.Vector3(
+      Math.sin(phase * 6.1 + center.y),
+      Math.cos(phase * 4.7 + center.z),
+      Math.sin(phase * 5.3 + center.x),
+    ).normalize();
+
+    for (let j = 0; j < 3; j += 1) {
+      faceCenters.push(center.x, center.y, center.z);
+      explodeDirs.push(explodeDir.x, explodeDir.y, explodeDir.z);
+      spinAxes.push(spinAxis.x, spinAxis.y, spinAxis.z);
+      phases.push(phase);
+    }
+  }
+
+  source.setAttribute("aFaceCenter", new THREE.Float32BufferAttribute(faceCenters, 3));
+  source.setAttribute("aExplodeDir", new THREE.Float32BufferAttribute(explodeDirs, 3));
+  source.setAttribute("aSpinAxis", new THREE.Float32BufferAttribute(spinAxes, 3));
+  source.setAttribute("aTriPhase", new THREE.Float32BufferAttribute(phases, 1));
+  source.computeVertexNormals();
+  return source;
+}
+
 function applyHeadMaterial(model) {
   model.traverse((child) => {
     if (!child.isMesh) return;
+    child.geometry = addPolygonAttributes(child.geometry);
     child.material = headMaterial;
   });
+}
+
+function cyclePolygonMode() {
+  polygonState.modeIndex = (polygonState.modeIndex + 1) % polygonModes.length;
+  polygonState.changedAt = performance.now() * 0.001;
+}
+
+function wasHeroClick() {
+  return heroDrag.totalDistance < 8;
+}
+
+function didHitHeroModel(e) {
+  if (!heroModel) return false;
+  const rect = heroCanvas.getBoundingClientRect();
+  heroPointer.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+  heroPointer.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+  heroRaycaster.setFromCamera(heroPointer, heroCamera);
+  return heroRaycaster.intersectObject(heroModel, true).length > 0;
 }
 
 const loader = new GLTFLoader();
@@ -213,6 +370,7 @@ function onHeroPointerDown(e) {
   heroDrag.active = true;
   heroDrag.lastX = e.clientX;
   heroDrag.lastY = e.clientY;
+  heroDrag.totalDistance = 0;
   heroCanvas.setPointerCapture(e.pointerId);
   heroCanvas.style.cursor = "grabbing";
 }
@@ -221,6 +379,7 @@ function onHeroPointerMove(e) {
   if (!heroDrag.active || !heroModel) return;
   const dx = e.clientX - heroDrag.lastX;
   const dy = e.clientY - heroDrag.lastY;
+  heroDrag.totalDistance += Math.hypot(dx, dy);
   heroModel.rotation.y += dx * ROTATE_SPEED;
   heroModel.rotation.x += dy * ROTATE_SPEED;
   heroModel.rotation.x = Math.max(
@@ -232,10 +391,12 @@ function onHeroPointerMove(e) {
 }
 
 function onHeroPointerUp(e) {
+  const shouldCycle = e && wasHeroClick() && didHitHeroModel(e);
   heroDrag.active = false;
   if (e && e.pointerId !== undefined)
     heroCanvas.releasePointerCapture(e.pointerId);
   heroCanvas.style.cursor = "grab";
+  if (shouldCycle) cyclePolygonMode();
 }
 
 heroCanvas.addEventListener("pointerdown", onHeroPointerDown);
@@ -246,7 +407,9 @@ heroCanvas.style.cursor = "grab";
 
 function animateHero() {
   requestAnimationFrame(animateHero);
-  drawHeadTexture(performance.now() * 0.001);
+  const timeSeconds = performance.now() * 0.001;
+  drawHeadTexture(timeSeconds);
+  updatePolygonTransform(timeSeconds);
   if (heroModel && !heroDrag.active) {
     heroModel.rotation.y += 0.004;
   }

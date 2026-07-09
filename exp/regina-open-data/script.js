@@ -40,6 +40,11 @@ const state = {
   amenities: [],
   pathways: [],
   bounds: null,
+  pointSprites: [],
+  pathwaySprites: [],
+  pointLayer: null,
+  typeOrder: [],
+  hovered: null,
   mode: "pulse",
   selectedType: null,
   pointer: { x: 0, y: 0, active: false },
@@ -101,6 +106,7 @@ async function loadData() {
   }
 
   state.bounds = calculateBounds([...state.amenities, ...state.pathways]);
+  rebuildRenderCache();
   updateStats();
   renderTypes();
 }
@@ -151,6 +157,89 @@ function getTypeCounts() {
   return [...counts.entries()].sort((a, b) => b[1] - a[1]);
 }
 
+function getCanvasRatio() {
+  return Math.min(window.devicePixelRatio || 1, 1.6);
+}
+
+function rebuildRenderCache() {
+  if (!state.bounds) return;
+
+  state.typeOrder = getTypeCounts().map(([type]) => type);
+  state.pointSprites = state.amenities.map((item) => {
+    const type = item.properties?.ASSET_TYPE || "OTHER";
+    const index = Math.max(0, state.typeOrder.indexOf(type));
+    const [x, y] = project(item.geometry.coordinates);
+
+    return {
+      item,
+      x,
+      y,
+      type,
+      color: palette[index % palette.length],
+      detail: item.properties?.DETAILS || item.properties?.ADDRESS || "Regina amenity",
+    };
+  });
+
+  state.pathwaySprites = state.pathways.map((item) => {
+    const surface = item.properties?.SURFACE || "";
+    const groups = item.geometry.type === "MultiLineString" ? item.geometry.coordinates : [item.geometry.coordinates];
+
+    return {
+      color: surface.includes("CRUSHER") || surface.includes("PAVING") ? "#f0c15a" : "#6bd8e8",
+      width: Math.max(1.5, Number(item.properties?.WIDTH) || 2),
+      groups: groups.map((coordinates) => coordinates.map(project)),
+    };
+  });
+
+  rebuildPointLayer();
+  updateHover();
+}
+
+function rebuildPointLayer() {
+  if (!canvas.width || !canvas.height) return;
+
+  if (!state.pointLayer) {
+    state.pointLayer = document.createElement("canvas");
+  }
+
+  const layer = state.pointLayer;
+  layer.width = canvas.width;
+  layer.height = canvas.height;
+  const layerCtx = layer.getContext("2d");
+  layerCtx.clearRect(0, 0, layer.width, layer.height);
+
+  const ratio = getCanvasRatio();
+  const primarySize = Math.max(2, 2.6 * ratio);
+  const mutedSize = Math.max(1, 1.4 * ratio);
+  const selectedOnly = Boolean(state.selectedType);
+
+  layerCtx.fillStyle = "rgba(224, 247, 241, 0.78)";
+  for (const point of state.pointSprites) {
+    if (selectedOnly && point.type !== state.selectedType) continue;
+    layerCtx.fillRect(point.x - primarySize / 2, point.y - primarySize / 2, primarySize, primarySize);
+  }
+
+  if (selectedOnly) {
+    layerCtx.fillStyle = "rgba(244, 241, 232, 0.12)";
+    for (const point of state.pointSprites) {
+      if (point.type === state.selectedType) continue;
+      layerCtx.fillRect(point.x - mutedSize / 2, point.y - mutedSize / 2, mutedSize, mutedSize);
+    }
+  }
+
+  if (state.mode === "rings") {
+    const ringRadius = 6 * ratio;
+    layerCtx.strokeStyle = "rgba(224, 247, 241, 0.32)";
+    layerCtx.lineWidth = Math.max(1, ratio);
+    for (const point of state.pointSprites) {
+      if (selectedOnly && point.type !== state.selectedType) continue;
+      layerCtx.beginPath();
+      layerCtx.arc(point.x, point.y, ringRadius, 0, Math.PI * 2);
+      layerCtx.stroke();
+    }
+  }
+}
+
 function updateStats() {
   document.getElementById("amenityCount").textContent = state.amenities.length.toLocaleString();
   document.getElementById("pathwayCount").textContent = state.pathways.length.toLocaleString();
@@ -161,8 +250,7 @@ function renderTypes() {
   const topTypes = getTypeCounts().slice(0, 8);
   typeList.innerHTML = "";
 
-  for (const [type, count] of topTypes) {
-    const index = topTypes.findIndex(([name]) => name === type);
+  topTypes.forEach(([type, count], index) => {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "type-pill";
@@ -179,17 +267,20 @@ function renderTypes() {
         ? `${count.toLocaleString()} mapped locations in this category.`
         : "Every loaded amenity is active again.";
       renderTypes();
+      rebuildPointLayer();
+      updateHover();
     });
     if (state.selectedType === type) button.classList.add("active");
     typeList.append(button);
-  }
+  });
 }
 
 function resize() {
   const rect = canvas.getBoundingClientRect();
-  const ratio = window.devicePixelRatio || 1;
+  const ratio = getCanvasRatio();
   canvas.width = Math.max(1, Math.floor(rect.width * ratio));
   canvas.height = Math.max(1, Math.floor(rect.height * ratio));
+  rebuildRenderCache();
 }
 
 function drawBackground() {
@@ -210,28 +301,24 @@ function drawBackground() {
 }
 
 function drawPathways() {
+  const ratio = getCanvasRatio();
   ctx.save();
   ctx.lineCap = "round";
   ctx.lineJoin = "round";
 
-  for (const item of state.pathways) {
-    const surface = item.properties?.SURFACE || "";
-    const color = surface.includes("CRUSHER") || surface.includes("PAVING") ? "#f0c15a" : "#6bd8e8";
-    const width = Math.max(1.5, Number(item.properties?.WIDTH) || 2);
-    const groups = item.geometry.type === "MultiLineString" ? item.geometry.coordinates : [item.geometry.coordinates];
+  for (const pathway of state.pathwaySprites) {
+    ctx.strokeStyle = pathway.color;
+    ctx.globalAlpha = state.mode === "flow" ? 0.66 : 0.32;
+    ctx.lineWidth = pathway.width * ratio;
+    ctx.shadowColor = pathway.color;
+    ctx.shadowBlur = state.mode === "flow" ? 10 : 4;
 
-    for (const coordinates of groups) {
+    for (const coordinates of pathway.groups) {
       ctx.beginPath();
-      coordinates.forEach((coordinate, index) => {
-        const [x, y] = project(coordinate);
+      coordinates.forEach(([x, y], index) => {
         if (index === 0) ctx.moveTo(x, y);
         else ctx.lineTo(x, y);
       });
-      ctx.strokeStyle = color;
-      ctx.globalAlpha = state.mode === "flow" ? 0.72 : 0.36;
-      ctx.lineWidth = width * (window.devicePixelRatio || 1);
-      ctx.shadowColor = color;
-      ctx.shadowBlur = state.mode === "flow" ? 18 : 8;
       ctx.stroke();
     }
   }
@@ -240,54 +327,23 @@ function drawPathways() {
 }
 
 function drawAmenities() {
-  const counts = getTypeCounts().map(([type]) => type);
-  const ratio = window.devicePixelRatio || 1;
-  ctx.save();
-
-  for (const item of state.amenities) {
-    const type = item.properties?.ASSET_TYPE || "OTHER";
-    const selected = !state.selectedType || state.selectedType === type;
-    const index = Math.max(0, counts.indexOf(type));
-    const color = palette[index % palette.length];
-    const [x, y] = project(item.geometry.coordinates);
-    const wobble = Math.sin(state.time * 0.002 + x * 0.015 + y * 0.01);
-    const radius = (selected ? 3.6 : 1.5) * ratio + wobble * ratio;
-
-    ctx.globalAlpha = selected ? 0.9 : 0.16;
-    ctx.fillStyle = color;
-    ctx.shadowColor = color;
-    ctx.shadowBlur = selected ? 20 : 4;
-    ctx.beginPath();
-    ctx.arc(x, y, radius, 0, Math.PI * 2);
-    ctx.fill();
-
-    if (state.mode === "rings" && selected) {
-      ctx.globalAlpha = 0.22;
-      ctx.lineWidth = 1 * ratio;
-      ctx.strokeStyle = color;
-      ctx.beginPath();
-      ctx.arc(x, y, (10 + Math.abs(wobble) * 16) * ratio, 0, Math.PI * 2);
-      ctx.stroke();
-    }
-  }
-
-  ctx.restore();
+  if (state.pointLayer) ctx.drawImage(state.pointLayer, 0, 0);
 }
 
 function drawFlowParticles() {
-  if (state.mode !== "flow" || !state.pathways.length) return;
-  const ratio = window.devicePixelRatio || 1;
+  if (state.mode !== "flow" || !state.pathwaySprites.length) return;
+  const ratio = getCanvasRatio();
   ctx.save();
   ctx.fillStyle = "#f4f1e8";
   ctx.shadowColor = "#f4f1e8";
-  ctx.shadowBlur = 18;
+  ctx.shadowBlur = 10;
 
-  state.pathways.slice(0, 260).forEach((item, index) => {
-    const coordinates = item.geometry.type === "MultiLineString" ? item.geometry.coordinates[0] : item.geometry.coordinates;
+  state.pathwaySprites.slice(0, 220).forEach((pathway, index) => {
+    const coordinates = pathway.groups[0];
     if (!coordinates || coordinates.length < 2) return;
     const phase = (state.time * 0.00008 + index * 0.037) % 1;
     const pointIndex = Math.min(coordinates.length - 2, Math.floor(phase * (coordinates.length - 1)));
-    const [x, y] = project(coordinates[pointIndex]);
+    const [x, y] = coordinates[pointIndex];
     ctx.globalAlpha = 0.4;
     ctx.beginPath();
     ctx.arc(x, y, 1.8 * ratio, 0, Math.PI * 2);
@@ -297,33 +353,37 @@ function drawFlowParticles() {
   ctx.restore();
 }
 
-function drawHover() {
-  if (!state.pointer.active || !state.amenities.length) return;
+function updateHover() {
+  state.hovered = null;
+  if (!state.pointer.active || !state.pointSprites.length) return;
   let nearest = null;
   let nearestDistance = Infinity;
 
-  for (const item of state.amenities) {
-    const [x, y] = project(item.geometry.coordinates);
-    const distance = Math.hypot(x - state.pointer.x, y - state.pointer.y);
+  for (const point of state.pointSprites) {
+    const distance = Math.hypot(point.x - state.pointer.x, point.y - state.pointer.y);
     if (distance < nearestDistance) {
       nearestDistance = distance;
-      nearest = { item, x, y };
+      nearest = point;
     }
   }
 
-  if (!nearest || nearestDistance > 42 * (window.devicePixelRatio || 1)) return;
-  const type = nearest.item.properties?.ASSET_TYPE || "Amenity";
-  const detail = nearest.item.properties?.DETAILS || nearest.item.properties?.ADDRESS || "Regina amenity";
-  activeLabel.textContent = type;
-  activeDetail.textContent = detail;
+  if (!nearest || nearestDistance > 42 * getCanvasRatio()) return;
+  state.hovered = nearest;
+  activeLabel.textContent = nearest.type;
+  activeDetail.textContent = nearest.detail;
+}
+
+function drawHover() {
+  if (!state.hovered) return;
+  const ratio = getCanvasRatio();
 
   ctx.save();
   ctx.strokeStyle = "rgba(244, 241, 232, 0.92)";
-  ctx.lineWidth = 1.5 * (window.devicePixelRatio || 1);
+  ctx.lineWidth = 1.5 * ratio;
   ctx.shadowColor = "#f4f1e8";
-  ctx.shadowBlur = 24;
+  ctx.shadowBlur = 14;
   ctx.beginPath();
-  ctx.arc(nearest.x, nearest.y, 15 * (window.devicePixelRatio || 1), 0, Math.PI * 2);
+  ctx.arc(state.hovered.x, state.hovered.y, 15 * ratio, 0, Math.PI * 2);
   ctx.stroke();
   ctx.restore();
 }
@@ -344,21 +404,24 @@ buttons.forEach((button) => {
   button.addEventListener("click", () => {
     state.mode = button.dataset.mode;
     buttons.forEach((item) => item.classList.toggle("active", item === button));
+    rebuildPointLayer();
   });
 });
 
 canvas.addEventListener("pointermove", (event) => {
   const rect = canvas.getBoundingClientRect();
-  const ratio = window.devicePixelRatio || 1;
+  const ratio = getCanvasRatio();
   state.pointer = {
     x: (event.clientX - rect.left) * ratio,
     y: (event.clientY - rect.top) * ratio,
     active: true,
   };
+  updateHover();
 });
 
 canvas.addEventListener("pointerleave", () => {
   state.pointer.active = false;
+  state.hovered = null;
   activeLabel.textContent = state.selectedType || "Regina Civic Pulse";
   activeDetail.textContent = state.selectedType
     ? "Filtered to the selected amenity category."

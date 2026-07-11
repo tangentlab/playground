@@ -33,17 +33,18 @@ const ctx = canvas.getContext("2d");
 const typeList = document.getElementById("typeList");
 const activeLabel = document.getElementById("activeLabel");
 const activeDetail = document.getElementById("activeDetail");
-const buttons = Array.from(document.querySelectorAll("[data-mode]"));
 const palette = ["#6bd8e8", "#7ee082", "#f0c15a", "#ef7c8e", "#a98cf0", "#ff9b54", "#9bd3ae"];
 
 const state = {
   amenities: [],
   pathways: [],
   bounds: null,
-  mode: "pulse",
   selectedType: null,
   pointer: { x: 0, y: 0, active: false },
-  time: 0,
+  projectedAmenities: [],
+  projectedPathways: [],
+  typeColors: new Map(),
+  drawPending: false,
 };
 
 function feature(lon, lat, properties) {
@@ -101,8 +102,10 @@ async function loadData() {
   }
 
   state.bounds = calculateBounds([...state.amenities, ...state.pathways]);
+  cacheGeometry();
   updateStats();
   renderTypes();
+  requestDraw();
 }
 
 function calculateBounds(features) {
@@ -179,6 +182,7 @@ function renderTypes() {
         ? `${count.toLocaleString()} mapped locations in this category.`
         : "Every loaded amenity is active again.";
       renderTypes();
+      requestDraw();
     });
     if (state.selectedType === type) button.classList.add("active");
     typeList.append(button);
@@ -187,26 +191,26 @@ function renderTypes() {
 
 function resize() {
   const rect = canvas.getBoundingClientRect();
-  const ratio = window.devicePixelRatio || 1;
+  const ratio = Math.min(window.devicePixelRatio || 1, 1.5);
   canvas.width = Math.max(1, Math.floor(rect.width * ratio));
   canvas.height = Math.max(1, Math.floor(rect.height * ratio));
+  cacheGeometry();
+  requestDraw();
 }
 
 function drawBackground() {
-  const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-  gradient.addColorStop(0, "#101815");
-  gradient.addColorStop(0.5, "#0a1016");
-  gradient.addColorStop(1, "#17121c");
-  ctx.fillStyle = gradient;
+  ctx.fillStyle = "#101719";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
+}
 
-  ctx.fillStyle = "rgba(244, 241, 232, 0.035)";
-  for (let x = 0; x < canvas.width; x += 42) {
-    ctx.fillRect(x, 0, 1, canvas.height);
-  }
-  for (let y = 0; y < canvas.height; y += 42) {
-    ctx.fillRect(0, y, canvas.width, 1);
-  }
+function cacheGeometry() {
+  if (!state.bounds) return;
+  state.typeColors = new Map(getTypeCounts().map(([type], index) => [type, palette[index % palette.length]]));
+  state.projectedAmenities = state.amenities.map((item) => ({ item, point: project(item.geometry.coordinates) }));
+  state.projectedPathways = state.pathways.flatMap((item) => {
+    const groups = item.geometry.type === "MultiLineString" ? item.geometry.coordinates : [item.geometry.coordinates];
+    return groups.map((coordinates) => ({ item, points: coordinates.map(project) }));
+  });
 }
 
 function drawPathways() {
@@ -214,85 +218,38 @@ function drawPathways() {
   ctx.lineCap = "round";
   ctx.lineJoin = "round";
 
-  for (const item of state.pathways) {
+  for (const { item, points } of state.projectedPathways) {
     const surface = item.properties?.SURFACE || "";
     const color = surface.includes("CRUSHER") || surface.includes("PAVING") ? "#f0c15a" : "#6bd8e8";
     const width = Math.max(1.5, Number(item.properties?.WIDTH) || 2);
-    const groups = item.geometry.type === "MultiLineString" ? item.geometry.coordinates : [item.geometry.coordinates];
-
-    for (const coordinates of groups) {
-      ctx.beginPath();
-      coordinates.forEach((coordinate, index) => {
-        const [x, y] = project(coordinate);
-        if (index === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
-      });
-      ctx.strokeStyle = color;
-      ctx.globalAlpha = state.mode === "flow" ? 0.72 : 0.36;
-      ctx.lineWidth = width * (window.devicePixelRatio || 1);
-      ctx.shadowColor = color;
-      ctx.shadowBlur = state.mode === "flow" ? 18 : 8;
-      ctx.stroke();
-    }
+    ctx.beginPath();
+    points.forEach(([x, y], index) => index === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y));
+    ctx.strokeStyle = color;
+    ctx.globalAlpha = 0.42;
+    ctx.lineWidth = width * Math.min(window.devicePixelRatio || 1, 1.5);
+    ctx.stroke();
   }
 
   ctx.restore();
 }
 
 function drawAmenities() {
-  const counts = getTypeCounts().map(([type]) => type);
-  const ratio = window.devicePixelRatio || 1;
+  const ratio = Math.min(window.devicePixelRatio || 1, 1.5);
   ctx.save();
 
-  for (const item of state.amenities) {
+  for (const { item, point: [x, y] } of state.projectedAmenities) {
     const type = item.properties?.ASSET_TYPE || "OTHER";
     const selected = !state.selectedType || state.selectedType === type;
-    const index = Math.max(0, counts.indexOf(type));
-    const color = palette[index % palette.length];
-    const [x, y] = project(item.geometry.coordinates);
-    const wobble = Math.sin(state.time * 0.002 + x * 0.015 + y * 0.01);
-    const radius = (selected ? 3.6 : 1.5) * ratio + wobble * ratio;
+    const color = state.typeColors.get(type) || palette[0];
+    const radius = (selected ? 3 : 1.5) * ratio;
 
     ctx.globalAlpha = selected ? 0.9 : 0.16;
     ctx.fillStyle = color;
-    ctx.shadowColor = color;
-    ctx.shadowBlur = selected ? 20 : 4;
     ctx.beginPath();
     ctx.arc(x, y, radius, 0, Math.PI * 2);
     ctx.fill();
 
-    if (state.mode === "rings" && selected) {
-      ctx.globalAlpha = 0.22;
-      ctx.lineWidth = 1 * ratio;
-      ctx.strokeStyle = color;
-      ctx.beginPath();
-      ctx.arc(x, y, (10 + Math.abs(wobble) * 16) * ratio, 0, Math.PI * 2);
-      ctx.stroke();
-    }
   }
-
-  ctx.restore();
-}
-
-function drawFlowParticles() {
-  if (state.mode !== "flow" || !state.pathways.length) return;
-  const ratio = window.devicePixelRatio || 1;
-  ctx.save();
-  ctx.fillStyle = "#f4f1e8";
-  ctx.shadowColor = "#f4f1e8";
-  ctx.shadowBlur = 18;
-
-  state.pathways.slice(0, 260).forEach((item, index) => {
-    const coordinates = item.geometry.type === "MultiLineString" ? item.geometry.coordinates[0] : item.geometry.coordinates;
-    if (!coordinates || coordinates.length < 2) return;
-    const phase = (state.time * 0.00008 + index * 0.037) % 1;
-    const pointIndex = Math.min(coordinates.length - 2, Math.floor(phase * (coordinates.length - 1)));
-    const [x, y] = project(coordinates[pointIndex]);
-    ctx.globalAlpha = 0.4;
-    ctx.beginPath();
-    ctx.arc(x, y, 1.8 * ratio, 0, Math.PI * 2);
-    ctx.fill();
-  });
 
   ctx.restore();
 }
@@ -302,8 +259,7 @@ function drawHover() {
   let nearest = null;
   let nearestDistance = Infinity;
 
-  for (const item of state.amenities) {
-    const [x, y] = project(item.geometry.coordinates);
+  for (const { item, point: [x, y] } of state.projectedAmenities) {
     const distance = Math.hypot(x - state.pointer.x, y - state.pointer.y);
     if (distance < nearestDistance) {
       nearestDistance = distance;
@@ -320,53 +276,51 @@ function drawHover() {
   ctx.save();
   ctx.strokeStyle = "rgba(244, 241, 232, 0.92)";
   ctx.lineWidth = 1.5 * (window.devicePixelRatio || 1);
-  ctx.shadowColor = "#f4f1e8";
-  ctx.shadowBlur = 24;
   ctx.beginPath();
   ctx.arc(nearest.x, nearest.y, 15 * (window.devicePixelRatio || 1), 0, Math.PI * 2);
   ctx.stroke();
   ctx.restore();
 }
 
-function frame(time) {
-  state.time = time;
+function draw() {
   drawBackground();
   if (state.bounds) {
     drawPathways();
-    drawFlowParticles();
     drawAmenities();
     drawHover();
   }
-  requestAnimationFrame(frame);
 }
 
-buttons.forEach((button) => {
-  button.addEventListener("click", () => {
-    state.mode = button.dataset.mode;
-    buttons.forEach((item) => item.classList.toggle("active", item === button));
+function requestDraw() {
+  if (state.drawPending) return;
+  state.drawPending = true;
+  requestAnimationFrame(() => {
+    state.drawPending = false;
+    draw();
   });
-});
+}
 
 canvas.addEventListener("pointermove", (event) => {
   const rect = canvas.getBoundingClientRect();
-  const ratio = window.devicePixelRatio || 1;
+  const ratio = Math.min(window.devicePixelRatio || 1, 1.5);
   state.pointer = {
     x: (event.clientX - rect.left) * ratio,
     y: (event.clientY - rect.top) * ratio,
     active: true,
   };
+  requestDraw();
 });
 
 canvas.addEventListener("pointerleave", () => {
   state.pointer.active = false;
-  activeLabel.textContent = state.selectedType || "Regina Civic Pulse";
+  activeLabel.textContent = state.selectedType || "Regina OpenData Map";
   activeDetail.textContent = state.selectedType
     ? "Filtered to the selected amenity category."
-    : "Parks, amenities, and pathways rendered as a living city instrument.";
+    : "Parks, amenities, and pathways from City of Regina OpenData.";
+  requestDraw();
 });
 
 window.addEventListener("resize", resize);
 
 resize();
 loadData();
-requestAnimationFrame(frame);

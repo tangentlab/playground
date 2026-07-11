@@ -9,7 +9,7 @@
   --ink: #f4f1e8;
   --muted: rgba(244, 241, 232, 0.72);
   --line: rgba(244, 241, 232, 0.16);
-  --panel: rgba(16, 18, 19, 0.78);
+  --panel: #171b1d;
   --green: #7ee082;
   --cyan: #6bd8e8;
   --gold: #f0c15a;
@@ -19,9 +19,7 @@
 body {
   margin: 0;
   min-height: 100vh;
-  background:
-    linear-gradient(135deg, rgba(18, 24, 22, 0.96), rgba(9, 12, 17, 0.98) 44%, rgba(25, 19, 28, 0.97)),
-    #101316;
+  background: #111517;
   color: var(--ink);
   font-family: "DM Sans", system-ui, sans-serif;
   overflow: hidden;
@@ -45,18 +43,6 @@ body {
   display: block;
 }
 
-.scanline {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background:
-    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
-    radial-gradient(circle at 24% 22%, rgba(126, 224, 130, 0.13), transparent 30%),
-    radial-gradient(circle at 74% 72%, rgba(239, 124, 142, 0.12), transparent 34%);
-  background-size: 100% 6px, auto, auto;
-  mix-blend-mode: screen;
-}
-
 .control-panel {
   position: relative;
   z-index: 2;
@@ -67,9 +53,6 @@ body {
   padding: 72px 28px 28px;
   border-left: 1px solid var(--line);
   background: var(--panel);
-  box-shadow: -20px 0 70px rgba(0, 0, 0, 0.36);
-  backdrop-filter: blur(22px);
-  -webkit-backdrop-filter: blur(22px);
   overflow-y: auto;
 }
 
@@ -137,13 +120,6 @@ h2 {
   text-transform: uppercase;
 }
 
-.mode-tabs {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 6px;
-}
-
-.mode-tabs button,
 .type-pill {
   min-width: 0;
   border: 1px solid var(--line);
@@ -151,16 +127,6 @@ h2 {
   background: rgba(255, 255, 255, 0.05);
   color: var(--ink);
   font: inherit;
-}
-
-.mode-tabs button {
-  height: 42px;
-  cursor: pointer;
-}
-
-.mode-tabs button.active {
-  border-color: rgba(126, 224, 130, 0.65);
-  background: rgba(126, 224, 130, 0.14);
 }
 
 .type-list {
@@ -188,7 +154,6 @@ h2 {
   height: 10px;
   border-radius: 50%;
   background: var(--cyan);
-  box-shadow: 0 0 16px currentColor;
 }
 
 .type-name {

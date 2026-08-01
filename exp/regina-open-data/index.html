@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Regina OpenData Map</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Outfit:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../back-link.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <a class="back-link" href="../../">Back to Home</a>
+
+  <main class="app-shell">
+    <section class="visual-stage" aria-label="Map of Regina parks, amenities, and pathways">
+      <canvas id="pulseCanvas"></canvas>
+    </section>
+
+    <aside class="control-panel">
+      <div>
+        <p class="eyebrow">OpenData Regina</p>
+        <h1>Regina OpenData Map</h1>
+        <p class="lede">A simple view of parks, amenities, and pathways across the city.</p>
+      </div>
+
+      <div class="stats" aria-live="polite">
+        <div>
+          <span id="amenityCount">...</span>
+          <small>amenities</small>
+        </div>
+        <div>
+          <span id="pathwayCount">...</span>
+          <small>pathways</small>
+        </div>
+        <div>
+          <span id="typeCount">...</span>
+          <small>types</small>
+        </div>
+      </div>
+
+      <div>
+        <h2>Top amenity types</h2>
+        <div id="typeList" class="type-list"></div>
+      </div>
+
+      <div class="detail-box">
+        <span id="activeLabel">Loading map data...</span>
+        <p id="activeDetail">City of Regina ArcGIS OpenData services are queried directly in the browser.</p>
+      </div>
+
+      <a class="source-link" href="https://opengis.regina.ca/arcgis/rest/services/OpenData" target="_blank" rel="noopener noreferrer">View source services</a>
+    </aside>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>

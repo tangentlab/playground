@@ -242,6 +242,15 @@ main.page {
     radial-gradient(ellipse at 45% 70%, rgba(240, 188, 112, 0.72), transparent 46%),
     linear-gradient(135deg, rgba(42, 52, 68, 0.95), rgba(18, 22, 30, 0.92));
 }
+.thumb-regina-data {
+  background:
+    radial-gradient(circle at 22% 26%, rgba(126, 224, 130, 0.95) 0 3px, transparent 4px),
+    radial-gradient(circle at 68% 38%, rgba(239, 124, 142, 0.92) 0 4px, transparent 5px),
+    radial-gradient(circle at 45% 74%, rgba(240, 193, 90, 0.9) 0 3px, transparent 4px),
+    linear-gradient(25deg, transparent 31%, rgba(107, 216, 232, 0.84) 32% 34%, transparent 35%),
+    linear-gradient(143deg, transparent 43%, rgba(126, 224, 130, 0.58) 44% 46%, transparent 47%),
+    linear-gradient(135deg, rgba(14, 24, 21, 0.98), rgba(11, 17, 25, 0.95) 52%, rgba(32, 21, 34, 0.96));
+}
 .card-text .title {
   font-family: "Outfit", system-ui, sans-serif;
   font-size: 1.1em;

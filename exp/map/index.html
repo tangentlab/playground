@@ -1,39 +1,54 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <!-- Include the CesiumJS JavaScript and CSS files -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b1117">
+  <title>City Map · Ryan's Playground</title>
   <script src="https://cesium.com/downloads/cesiumjs/releases/1.138/Build/Cesium/Cesium.js"></script>
-  <link href="https://cesium.com/downloads/cesiumjs/releases/1.138/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
-  <link rel="stylesheet" href="../back-link.css">
+  <link rel="stylesheet" href="https://cesium.com/downloads/cesiumjs/releases/1.138/Build/Cesium/Widgets/widgets.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Outfit:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <a class="back-link back-link--below" href="../../">Back to Home</a>
-  <div id="cesiumContainer"></div>
-  <script type="module">
-    // Your access token can be found at: https://ion.cesium.com/tokens.
-    // This is the default access token from your ion account
+  <main class="map-shell">
+    <div id="cesiumContainer" class="map-canvas" aria-label="Interactive 3D city map"></div>
 
-    Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI3Njk2YmZlOC0zMWNjLTQyNTgtOTM2OS1jYjU4MzlhZTI0YmMiLCJpZCI6Mzg2ODIyLCJpYXQiOjE3NzAxODYyMTN9.JCPJLbAvrgzStKuTzzrxFss2FHwv8p634oMBKdE7bO8';
+    <header class="map-header">
+      <a class="back-button" href="../../" aria-label="Back to experiments">
+        <span aria-hidden="true">←</span>
+        <span>Playground</span>
+      </a>
+      <div class="place-card">
+        <span class="eyebrow">CITY MAP</span>
+        <h1>San Francisco</h1>
+        <p>Explore terrain and buildings in 3D</p>
+      </div>
+    </header>
 
-    // Initialize the Cesium Viewer in the HTML element with the `cesiumContainer` ID.
-    const viewer = new Cesium.Viewer('cesiumContainer', {
-      terrain: Cesium.Terrain.fromWorldTerrain(),
-    });
+    <div class="map-actions" aria-label="Map controls">
+      <button id="homeButton" class="map-button" type="button" aria-label="Return to city view" title="Return to city view">
+        <span aria-hidden="true">⌂</span>
+      </button>
+      <button id="viewButton" class="map-button" type="button" aria-label="Switch map angle" title="Switch map angle">
+        <span aria-hidden="true">◩</span>
+      </button>
+    </div>
 
-    // Fly the camera to San Francisco at the given longitude, latitude, and height.
-    viewer.camera.flyTo({
-      destination: Cesium.Cartesian3.fromDegrees(-122.4175, 37.655, 400),
-      orientation: {
-        heading: Cesium.Math.toRadians(0.0),
-        pitch: Cesium.Math.toRadians(-15.0),
-      }
-    });
+    <div id="mapStatus" class="map-status" role="status">
+      <span class="status-dot" aria-hidden="true"></span>
+      <span>Loading the city…</span>
+    </div>
 
-    // Add Cesium OSM Buildings, a global 3D buildings layer.
-    const buildingTileset = await Cesium.createOsmBuildingsAsync();
-    viewer.scene.primitives.add(buildingTileset);
-  </script>
- </div>
+    <aside class="map-hint">
+      <span>Drag to orbit</span>
+      <span class="separator" aria-hidden="true"></span>
+      <span>Scroll to zoom</span>
+    </aside>
+  </main>
+
+  <script type="module" src="city-map.js"></script>
 </body>
 </html>

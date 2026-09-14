@@ -1,29 +1,144 @@
 <!doctype html>
 <!-- Development aligned with docs/summary.md. Phase: 4 | Focus: interactive technical skills showcase, accessible navigation and project context. -->
 <html lang="en">
-<head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="development-guide" content="Based on docs/summary.md recommendations">
-<meta name="description" content="Explore a playful Regina-inspired town and discover Ryan Hill's creative coding experiments in five enterable studios.">
-<title>Prairie Quest — Ryan's Regina</title>
-<link rel="stylesheet" href="style.css">
-</head>
-<body>
-<header><a href="../../" class="home" aria-label="Back to Playground">← Playground</a><div class="brand">PRAIRIE QUEST <span>REGINA, SK</span></div><button id="journalButton">Field guide <kbd>J</kbd></button></header>
-<main>
-<section id="stage" aria-label="Regina RPG game">
-<canvas id="game" tabindex="0" aria-label="Explore town using WASD or arrow keys. E to enter or inspect. J opens the field guide.">Your browser needs Canvas support to play. The field guide lists all skills and locations.</canvas>
-<div class="location"><span id="areaType">THE QUEEN CITY</span><h1 id="area">Wascana neighbourhood</h1></div>
-<div class="quest"><span>THE CREATIVE CIRCUIT</span><strong id="progress">0 / 5 discoveries</strong><div id="dots" aria-hidden="true">○ ○ ○ ○ ○</div></div>
-<div id="prompt" class="prompt" hidden></div>
-<div class="bottom-note">A little prairie. A lot of possibility.</div>
-<div id="touch"><div class="dpad"><button data-key="ArrowUp" aria-label="Move north">↑</button><button data-key="ArrowLeft" aria-label="Move west">←</button><button data-key="ArrowDown" aria-label="Move south">↓</button><button data-key="ArrowRight" aria-label="Move east">→</button></div><button id="action" aria-label="Interact">E</button></div>
-</section>
-<footer><div><kbd>W A S D</kbd> / <kbd>↑ ↓ ← →</kbd> Move <span>·</span> <kbd>E</kbd> Interact <span>·</span> <kbd>Shift</kbd> Run</div><div><button id="sound" aria-pressed="false">Sound off</button><button id="resetPosition">Return to square</button></div></footer>
-</main>
-<dialog id="conversation" aria-labelledby="dialogTitle"><div class="eyebrow" id="dialogEyebrow">PRAIRIE QUEST</div><h2 id="dialogTitle"></h2><p id="dialogText"></p><a id="projectLink" target="_blank" rel="noopener" hidden>Explore the original experiment ↗</a><button id="closeConversation">Keep exploring <kbd>E</kbd></button></dialog>
-<dialog id="journal" aria-labelledby="journalTitle"><div class="journal-top"><div><div class="eyebrow">RYAN'S FIELD GUIDE</div><h2 id="journalTitle">A town full of ideas.</h2></div><button id="closeJournal" aria-label="Close field guide">✕</button></div><p>Visit five studios, inspect their signature exhibits, and collect your creative circuit stamps.</p><p class="note">Skills below are inferred from your Playground projects, not a complete or verified résumé. Landmark exteriors are stylized; interiors and the compact town layout are fictional.</p><div id="skillList"></div><details><summary>Regina inspiration & sources</summary><p>Wascana Lake, the Legislature, the Saskatchewan Science Centre, MacKenzie Art Gallery, and Darke Hall anchor this imagined neighbourhood. Trees, geese, flower beds, benches and lakeside paths tie the town together.</p><a href="https://www.wascana.ca/attractions/" target="_blank" rel="noopener">Wascana Centre — attractions ↗</a><br><a href="https://darkehall.ca/" target="_blank" rel="noopener">Darke Hall ↗</a></details></dialog>
-<dialog id="battle" aria-labelledby="battleTitle"><div class="eyebrow">FINAL ENCOUNTER · WASCANA LAKE</div><h2 id="battleTitle">Goose of Wascana</h2><div class="boss-portrait" aria-hidden="true">🪿</div><p id="battleIntro">The lake's most opinionated resident challenges your creative skills.</p><div class="battle-vitals"><label>Goose resolve <progress id="bossHealth" max="120" value="120"></progress><span id="bossHealthText"></span></label><label>Your confidence <progress id="heroHealth" max="100" value="100"></progress><span id="heroHealthText"></span></label></div><p id="battleLog" role="status" aria-live="polite"></p><p id="bossIntent"></p><div id="battleActions"></div><button id="leaveBattle">Retreat to town</button></dialog>
-<div id="announcement" class="sr-only" role="status" aria-live="polite"></div>
-<script src="game.js"></script>
-</body></html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta
+      name="development-guide"
+      content="Based on docs/summary.md recommendations"
+    />
+    <meta
+      name="description"
+      content="Explore a playful Regina-inspired town and discover Ryan Hill's creative coding experiments in five enterable studios."
+    />
+    <title>Prairie Quest — Ryan's Regina</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body>
+    <header>
+      <a href="../../" class="home" aria-label="Back to Playground"
+        >← Playground</a
+      >
+      <div class="brand">PRAIRIE QUEST <span>REGINA, SK</span></div>
+      <button id="journalButton">Field guide <kbd>J</kbd></button>
+    </header>
+    <main>
+      <section id="stage" aria-label="Regina RPG game">
+        <canvas
+          id="game"
+          tabindex="0"
+          aria-label="Explore town using WASD or arrow keys. E to enter or inspect. J opens the field guide."
+          >Your browser needs Canvas support to play. The field guide lists all
+          skills and locations.</canvas
+        >
+        <div class="location">
+          <span id="areaType">THE QUEEN CITY</span>
+          <h1 id="area">Wascana neighbourhood</h1>
+        </div>
+        <div class="quest">
+          <span>THE CREATIVE CIRCUIT</span
+          ><strong id="progress">0 / 5 discoveries</strong>
+          <div id="dots" aria-hidden="true">○ ○ ○ ○ ○</div>
+        </div>
+        <div id="prompt" class="prompt" hidden></div>
+        <div class="bottom-note">A little prairie. A lot of possibility.</div>
+        <div id="touch">
+          <div class="dpad">
+            <button data-key="ArrowUp" aria-label="Move north">↑</button
+            ><button data-key="ArrowLeft" aria-label="Move west">←</button
+            ><button data-key="ArrowDown" aria-label="Move south">↓</button
+            ><button data-key="ArrowRight" aria-label="Move east">→</button>
+          </div>
+          <button id="action" aria-label="Interact">E</button>
+        </div>
+      </section>
+      <footer>
+        <div>
+          <kbd>W A S D</kbd> / <kbd>↑ ↓ ← →</kbd> Move <span>·</span>
+          <kbd>E</kbd> Interact <span>·</span> <kbd>Shift</kbd> Run
+        </div>
+        <div>
+          <button id="sound" aria-pressed="false">Sound off</button
+          ><button id="resetPosition">Return to square</button>
+        </div>
+      </footer>
+    </main>
+
+    <dialog id="conversation" aria-labelledby="dialogTitle">
+      <div class="eyebrow" id="dialogEyebrow">PRAIRIE QUEST</div>
+      <h2 id="dialogTitle"></h2>
+      <p id="dialogText"></p>
+      <a id="projectLink" target="_blank" rel="noopener" hidden
+        >Explore the original experiment ↗</a
+      ><button id="closeConversation">Keep exploring <kbd>E</kbd></button>
+    </dialog>
+    <dialog id="journal" aria-labelledby="journalTitle">
+      <div class="journal-top">
+        <div>
+          <div class="eyebrow">RYAN'S FIELD GUIDE</div>
+          <h2 id="journalTitle">A town full of ideas.</h2>
+        </div>
+        <button id="closeJournal" aria-label="Close field guide">✕</button>
+      </div>
+      <p>
+        Visit five studios, inspect their signature exhibits, and collect your
+        creative circuit stamps.
+      </p>
+      <p class="note">
+        Skills below are inferred from your Playground projects, not a complete
+        or verified résumé. Landmark exteriors are stylized; interiors and the
+        compact town layout are fictional.
+      </p>
+      <div id="skillList"></div>
+      <details>
+        <summary>Regina inspiration & sources</summary>
+        <p>
+          Wascana Lake, the Legislature, the Saskatchewan Science Centre,
+          MacKenzie Art Gallery, and Darke Hall anchor this imagined
+          neighbourhood. Trees, geese, flower beds, benches and lakeside paths
+          tie the town together.
+        </p>
+        <a
+          href="https://www.wascana.ca/attractions/"
+          target="_blank"
+          rel="noopener"
+          >Wascana Centre — attractions ↗</a
+        ><br /><a href="https://darkehall.ca/" target="_blank" rel="noopener"
+          >Darke Hall ↗</a
+        >
+      </details>
+    </dialog>
+    <dialog id="battle" aria-labelledby="battleTitle">
+      <div class="eyebrow">FINAL ENCOUNTER · WASCANA LAKE</div>
+      <h2 id="battleTitle">Goose of Wascana</h2>
+      <div class="boss-portrait" aria-hidden="true">🪿</div>
+      <p id="battleIntro">
+        The lake's most opinionated resident challenges your creative skills.
+      </p>
+      <div class="battle-vitals">
+        <label
+          >Goose resolve
+          <progress id="bossHealth" max="120" value="120"></progress
+          ><span id="bossHealthText"></span></label
+        ><label
+          >Your confidence
+          <progress id="heroHealth" max="100" value="100"></progress
+          ><span id="heroHealthText"></span
+        ></label>
+      </div>
+      <p id="battleLog" role="status" aria-live="polite"></p>
+      <p id="bossIntent"></p>
+      <div id="battleActions"></div>
+      <button id="leaveBattle">Retreat to town</button>
+    </dialog>
+    <div
+      id="announcement"
+      class="sr-only"
+      role="status"
+      aria-live="polite"
+    ></div>
+    <script src="game.js"></script>
+  </body>
+</html>

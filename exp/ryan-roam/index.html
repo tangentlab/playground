@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#ece9df"><title>Ryan, out for a walk — Playground</title>
+<link rel="stylesheet" href="style.css">
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.183.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.183.0/examples/jsm/"}}</script>
+</head>
+<body>
+<main id="world" aria-label="An interactive sculpture garden. Walk using W A S D or the arrow keys."></main>
+<header><a href="../../" class="home" aria-label="Back to Playground">↖ <span>PLAYGROUND</span></a><span class="edition">FIELD TRIP <b>001</b></span><button id="help" aria-expanded="false" aria-controls="guide">Controls <span>?</span></button></header>
+<section class="intro"><p class="eyebrow">A SMALL PLACE TO WANDER</p><h1>Ryan, out<br>for a walk.</h1><p>Your digital self. A little fresh air.<br>No destination required.</p><div class="live"><i></i><span id="status" role="status">Getting your shoes on…</span></div></section>
+<aside class="field-notes"><span class="eyebrow">AROUND THE GARDEN</span><ol><li data-place="0"><span>01</span>The portal <b>○</b></li><li data-place="1"><span>02</span>Balancing act <b>○</b></li><li data-place="2"><span>03</span>The quiet corner <b>○</b></li></ol><p id="discovery" aria-live="polite">Take a look around. Find all three.</p></aside>
+<div id="guide" hidden><h2>Make yourself at home.</h2><p><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> or arrow keys to walk</p><p>Hold <kbd>Shift</kbd> to move faster, or toggle the Boost button.</p><p>The camera eases behind you as you walk.<br>Drag the scene to look around.<br>Scroll to move the camera closer.<br>On touch screens, use the movement pad.</p><button id="reset">Back to the start ↺</button></div>
+<footer><span><span class="keycap">W A S D</span> WALK <span class="divider">/</span> SHIFT TO BOOST <span class="divider">/</span> DRAG TO LOOK</span><span id="location">SCULPTURE GARDEN <b>↗</b></span></footer>
+<button id="boost" aria-pressed="false" title="Toggle faster movement; hold Shift on a keyboard">⇧ Boost</button>
+<div id="joystick" aria-label="Touch movement pad"><div id="stick"></div></div>
+<div id="loading"><span class="loading-mark">r.</span><p id="loading-text">Bringing Ryan into the garden…</p><progress id="progress" aria-label="Character loading progress"></progress><button id="retry" hidden onclick="location.reload()">Try again</button></div>
+<noscript>This experiment needs JavaScript enabled.</noscript>
+<script type="module">import('./main.js').catch(error=>{console.error(error);document.querySelector('#loading-text').textContent='The garden could not load. Check your connection and try again.';document.querySelector('#progress').hidden=true;document.querySelector('#retry').hidden=false;});</script>
+</body></html>

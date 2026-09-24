@@ -21,3 +21,11 @@ Rendered the full 32-frame sequence and inspected representative poses. Verified
 Use `ryan_walk_refined.blend` for the revised version and `ryan_walk_refined.mp4` for the preview. Knee pole controls are now connected and calibrated to keep the knees pointing forward. The revised gait uses less hip lowering, lower foot clearance, and parallel foot paths slightly closer to hip width. The first version remains available for comparison.
 
 Reproduce by opening `ryan_walk.blend` in background mode and running `--python refine_legs.py`. This writes the refined file, a rendered sequence, frontal inspection images, and `leg-validation.json`. Checks cover all 32 frames: forward knee bend, less than 2.5 cm lateral knee deviation from the hip/ankle midpoint (actual maximum approximately 3.5 mm), and matching start/end poses. The general first-pass skin-weight limitations above still apply.
+
+## Natural arm swing and wider steps
+
+`ryan_walk_natural.blend` adds coordinated arm swing, relaxed elbow and wrist movement, subtle opposing torso rotation, and wider/longer steps. Reproduce from `ryan_walk_refined.blend` with `--python natural_walk.py`. The browser character is exported from this version. All 32 poses retain forward knee bend, with maximum lateral knee deviation about 3.6 mm and matching loop endpoints. The previous versions remain available.
+
+## Video-reference pass
+
+`ryan_walk_reference.blend` and `ryan_walk_reference.mp4` contain the latest reference-inspired walk. Rebuild from `ryan_walk_natural.blend` with `--python reference_walk.py`. Reference: https://www.youtube.com/watch?v=Mol0lrRBy3g. This hand-authored approximation adds elbow flexion, heel/toe roll, and a springier hip motion. The knees and loop endpoints are validated in `reference-walk-validation.json`.

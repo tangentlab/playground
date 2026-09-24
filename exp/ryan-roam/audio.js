@@ -1,6 +1,6 @@
 // Small procedural soundscape: no downloads or external audio assets.
-export function gardenAudio(button){
- let ctx,master,wind,water,enabled=false,nextBird=0,stepDistance=0;
+export function gardenAudio(button,night=false){
+ let ctx,master,wind,water,enabled=false,nextBird=0,stepDistance=0,nextNote=0,note=0;
  function noise(filterType,frequency){
   const buffer=ctx.createBuffer(1,ctx.sampleRate*3,ctx.sampleRate),data=buffer.getChannelData(0);
   for(let i=0;i<data.length;i++)data[i]=Math.random()*2-1;
@@ -20,8 +20,12 @@ export function gardenAudio(button){
  return (dt,position,speed)=>{
   if(!enabled||ctx.state!=='running'||document.hidden)return;
   const now=ctx.currentTime,fountain=Math.hypot(position.x+8,position.z+12),birds=Math.hypot(position.x-12,position.z-9);
+  if(night){
+   if(now>nextNote){const notes=[130.81,164.81,196,246.94,261.63,196,164.81,146.83];tone(notes[note%8],.35,.075);if(note%4===0)tone(65.41,.5,.09);if(note%2===0)tone(110,.12,.07,40);note++;nextNote=now+.25;}
+  }else{
   wind.gain.setTargetAtTime(.045+Math.sin(now*.3)*.008,now,.3);water.gain.setTargetAtTime(.32/(1+(fountain/3)**2),now,.2);
   if(now>nextBird){tone(2400+Math.random()*600,.14,.055/(1+(birds/6)**2),3800);nextBird=now+.5+Math.random()*2.5;}
+  }
   if(speed>.1){stepDistance+=speed*dt;if(stepDistance>.65){tone(150,.065,.045,65);stepDistance=0;}}else stepDistance=.5;
  };
 }

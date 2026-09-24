@@ -39,6 +39,7 @@ marker('04',-5.7,-10.8);marker('05',6,10.8);marker('06',11,11);
 const updateEnvironment=addEnvironment(scene,solid,materials);
 const updateAudio=gardenAudio($('#sound'));
 const player=new THREE.Group();scene.add(player);player.position.set(0,.035,3);player.rotation.y=Math.PI;
+let jumpAction,jumpElapsed=0,jumping=false;
 let mixer,walk,idle,ready=false,walking=false,speed=0,yaw=0,pitch=.32,distance=6.5,last=0;
 const WALK_SPEED=1.7, BOOST_SPEED=3.0;
 let boostToggled=true;
@@ -46,16 +47,25 @@ let movementYaw=0, inputHeading=null, orbitGrace=0;
 const keys=new Set(),touch={x:0,z:0},velocity=new THREE.Vector3(),aim=new THREE.Vector3(),offset=new THREE.Vector3();
 const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 function loadFailed(e){console.error(e);$('#loading-text').textContent='Ryan could not load. Check your connection and try again.';$('#progress').hidden=true;$('#retry').hidden=false;}
-new GLTFLoader().load('./assets/ryan.glb',gltf=>{
+new GLTFLoader().load('./assets/ryan-flip.glb?v=1',gltf=>{
  player.add(gltf.scene);gltf.scene.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;o.frustumCulled=false;if(o.material.map)o.material.map.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());}});
  mixer=new THREE.AnimationMixer(gltf.scene);
  const walkClip=gltf.animations.find(a=>a.name==='Walk'),idleClip=gltf.animations.find(a=>a.name==='Idle');
  if(!walkClip||!idleClip){loadFailed(new Error('Missing character animations'));return;}
  walk=mixer.clipAction(walkClip);idle=mixer.clipAction(idleClip);idle.play();
+ const jumpClip=gltf.animations.find(a=>a.name==='FlipJump');
+ if(!jumpClip){loadFailed(new Error('Missing flip animation'));return;}
+ jumpAction=mixer.clipAction(jumpClip);jumpAction.setLoop(THREE.LoopOnce,1);jumpAction.clampWhenFinished=true;$('#jump').disabled=false;
  ready=true;$('#loading').classList.add('done');$('#status').textContent='Ready when you are';
 },e=>{if(e.total){$('#progress').max=e.total;$('#progress').value=e.loaded;}},loadFailed);
+function startJump(){
+ if(!ready||jumping||!$('#guide').hidden)return;
+ jumping=true;jumpElapsed=0;$('#jump').disabled=true;
+ const from=walking?walk:idle;jumpAction.reset().setEffectiveTimeScale(1).setEffectiveWeight(1).play();from.crossFadeTo(jumpAction,.08,false);
+}
+$('#jump').onclick=()=>{startJump();renderer.domElement.focus({preventScroll:true});};
 const movementKeys=['KeyW','KeyA','KeyS','KeyD','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'];
-addEventListener('keydown',e=>{if(e.code==='ShiftLeft'||e.code==='ShiftRight')keys.add(e.code);if(movementKeys.includes(e.code)&&!['BUTTON','A'].includes(document.activeElement.tagName)){e.preventDefault();keys.add(e.code);}});
+addEventListener('keydown',e=>{if(e.code==='Space'&&!['BUTTON','A','INPUT','TEXTAREA'].includes(document.activeElement.tagName)){e.preventDefault();if(!e.repeat)startJump();}if(e.code==='ShiftLeft'||e.code==='ShiftRight')keys.add(e.code);if(movementKeys.includes(e.code)&&!['BUTTON','A'].includes(document.activeElement.tagName)){e.preventDefault();keys.add(e.code);}});
 addEventListener('keyup',e=>keys.delete(e.code));
 function clearInput(){inputHeading=null;keys.clear();touch.x=touch.z=0;$('#stick').style.transform='';}
 addEventListener('blur',clearInput);document.addEventListener('visibilitychange',()=>{if(document.hidden){clearInput();last=0;}});
@@ -70,7 +80,7 @@ joystick.addEventListener('pointerdown',e=>{stickId=e.pointerId;joystick.setPoin
 for(const event of ['pointerup','pointercancel','lostpointercapture'])joystick.addEventListener(event,()=>{stickId=null;touch.x=touch.z=0;$('#stick').style.transform='';});
 $('#boost').onclick=()=>{boostToggled=!boostToggled;$('#boost').setAttribute('aria-pressed',String(boostToggled));renderer.domElement.focus({preventScroll:true});};
 $('#help').onclick=()=>{const open=$('#guide').hidden;$('#guide').hidden=!open;$('#help').setAttribute('aria-expanded',String(open));clearInput();};
-$('#reset').onclick=()=>{player.position.set(0,.035,3);player.rotation.y=Math.PI;yaw=0;movementYaw=0;orbitGrace=0;pitch=.32;distance=6.5;velocity.set(0,0,0);boostToggled=true;$('#boost').setAttribute('aria-pressed','true');clearInput();$('#guide').hidden=true;$('#help').setAttribute('aria-expanded','false');renderer.domElement.focus();};
+$('#reset').onclick=()=>{if(jumpAction){jumpAction.stop();walk.stop();idle.reset().play();}jumping=false;jumpElapsed=0;walking=false;$('#jump').disabled=!ready;player.position.set(0,.035,3);player.rotation.y=Math.PI;yaw=0;movementYaw=0;orbitGrace=0;pitch=.32;distance=6.5;velocity.set(0,0,0);boostToggled=true;$('#boost').setAttribute('aria-pressed','true');clearInput();$('#guide').hidden=true;$('#help').setAttribute('aria-expanded','false');renderer.domElement.focus();};
 const places=[{x:0,z:-9.7,name:'The portal'},{x:10,z:-3,name:'Balancing act'},{x:-10,z:11,name:'The quiet corner'},{x:-8,z:-12,name:'The fountain'},{x:7,z:10,name:'The garbage can'},{x:12,z:9,name:'The little flock'}],found=new Set();
 function animate(ms){
  const dt=Math.min((ms-(last||ms))/1000,.05);last=ms;
@@ -88,19 +98,20 @@ function animate(ms){
   orbitGrace=Math.max(0,orbitGrace-dt);
   const boosting=boostToggled||keys.has('ShiftLeft')||keys.has('ShiftRight');
   const targetSpeed=boosting?BOOST_SPEED:WALK_SPEED;
-  velocity.x=THREE.MathUtils.damp(velocity.x,input.x*targetSpeed,10,dt);velocity.z=THREE.MathUtils.damp(velocity.z,input.z*targetSpeed,10,dt);
+  if(!jumping){velocity.x=THREE.MathUtils.damp(velocity.x,input.x*targetSpeed,10,dt);velocity.z=THREE.MathUtils.damp(velocity.z,input.z*targetSpeed,10,dt);}
   const before=player.position.clone(),next=resolvePosition(before.x+velocity.x*dt,before.z+velocity.z*dt,obstacles);
   player.position.x=next.x;player.position.z=next.z;speed=dt?player.position.distanceTo(before)/dt:0;
-  if(speed>.025){const angle=Math.atan2(velocity.x,velocity.z);player.rotation.y+=angleDelta(player.rotation.y,angle)*(1-Math.exp(-12*dt));}
+  if(speed>.025&&!jumping){const angle=Math.atan2(velocity.x,velocity.z);player.rotation.y+=angleDelta(player.rotation.y,angle)*(1-Math.exp(-12*dt));}
   const moving=speed>.04;
   if(moving&&!drag&&orbitGrace===0)yaw=easeAngle(yaw,player.rotation.y-Math.PI,2.8,dt);
-  if(moving!==walking){walking=moving;const from=walking?idle:walk,to=walking?walk:idle;to.reset().play();from.crossFadeTo(to,.2,false);}
-  $('#status').textContent=walking?(boosting?'Picking up the pace':'Taking the scenic route'):'Ready when you are';
+  if(!jumping&&moving!==walking){walking=moving;const from=walking?idle:walk,to=walking?walk:idle;to.reset().play();from.crossFadeTo(to,.2,false);}
+  $('#status').textContent=jumping?'Taking a leap':walking?(boosting?'Picking up the pace':'Taking the scenic route'):'Ready when you are';
   walk.timeScale=Math.max(.15,speed/.85);mixer.update(dt);
+  if(jumping){jumpElapsed+=dt;if(jumpElapsed>=jumpAction.getClip().duration){jumping=false;walking=moving;const next=walking?walk:idle;next.reset().play();jumpAction.crossFadeTo(next,.14,false);$('#jump').disabled=false;}}
   places.forEach((p,i)=>{if(Math.hypot(player.position.x-p.x,player.position.z-p.z)<3.3&&!found.has(i)){found.add(i);const row=$(`[data-place="${i}"]`);row.classList.add('found');row.querySelector('b').textContent='✓';$('#discovery').textContent=found.size===places.length?'All six found. Stay a little longer.':`${p.name}, found. ${found.size} of ${places.length}.`;}});
  }
  updateEnvironment(ms/1000,dt,player.position,reduced);
- updateAudio(dt,player.position,speed);
+ updateAudio(dt,player.position,jumping?0:speed);
  aim.copy(player.position).add(new THREE.Vector3(0,1,0));offset.set(Math.sin(yaw)*distance*Math.cos(pitch),distance*Math.sin(pitch),Math.cos(yaw)*distance*Math.cos(pitch));const desired=aim.clone().add(offset);
  camera.position.lerp(desired,reduced?1:1-Math.exp(-8*(dt||.016)));camera.lookAt(aim);renderer.render(scene,camera);
 }

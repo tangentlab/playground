@@ -1,5 +1,7 @@
 import * as THREE from 'three';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
+import {addEnvironment} from './environment.js';
+import {gardenAudio} from './audio.js';
 import {direction,resolvePosition,angleDelta,easeAngle} from './movement.mjs';
 const $=s=>document.querySelector(s),world=$('#world');
 const scene=new THREE.Scene();scene.background=new THREE.Color('#e7e8de');scene.fog=new THREE.Fog('#e7e8de',24,65);
@@ -33,10 +35,13 @@ mesh(new THREE.BoxGeometry(3.5,.25,.85),materials.stone,-10,.65,11);solid(-10,11
 for(const x of [-11.25,-8.75])mesh(new THREE.BoxGeometry(.25,.6,.65),materials.clay,x,.3,11);
 function marker(text,x,z){const c=document.createElement('canvas');c.width=256;c.height=128;const ctx=c.getContext('2d');ctx.fillStyle='#ece7d7';ctx.fillRect(0,0,256,128);ctx.fillStyle='#52624e';ctx.font='44px sans-serif';ctx.textAlign='center';ctx.fillText(text,128,78);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;const sign=mesh(new THREE.BoxGeometry(.65,.34,.04),new THREE.MeshStandardMaterial({map:t}),x,.9,z);mesh(new THREE.CylinderGeometry(.025,.025,.75,8),materials.dark,x,.4,z);}
 marker('01',-2.6,-8.8);marker('02',8,-1.8);marker('03',-7.5,10.5);
+marker('04',-5.7,-10.8);marker('05',6,10.8);marker('06',11,11);
+const updateEnvironment=addEnvironment(scene,solid,materials);
+const updateAudio=gardenAudio($('#sound'));
 const player=new THREE.Group();scene.add(player);player.position.set(0,.035,3);player.rotation.y=Math.PI;
 let mixer,walk,idle,ready=false,walking=false,speed=0,yaw=0,pitch=.32,distance=6.5,last=0;
 const WALK_SPEED=1.7, BOOST_SPEED=3.0;
-let boostToggled=false;
+let boostToggled=true;
 let movementYaw=0, inputHeading=null, orbitGrace=0;
 const keys=new Set(),touch={x:0,z:0},velocity=new THREE.Vector3(),aim=new THREE.Vector3(),offset=new THREE.Vector3();
 const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -52,7 +57,7 @@ new GLTFLoader().load('./assets/ryan.glb',gltf=>{
 const movementKeys=['KeyW','KeyA','KeyS','KeyD','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'];
 addEventListener('keydown',e=>{if(e.code==='ShiftLeft'||e.code==='ShiftRight')keys.add(e.code);if(movementKeys.includes(e.code)&&!['BUTTON','A'].includes(document.activeElement.tagName)){e.preventDefault();keys.add(e.code);}});
 addEventListener('keyup',e=>keys.delete(e.code));
-function clearInput(){inputHeading=null;keys.clear();boostToggled=false;$('#boost').setAttribute('aria-pressed','false');touch.x=touch.z=0;$('#stick').style.transform='';}
+function clearInput(){inputHeading=null;keys.clear();touch.x=touch.z=0;$('#stick').style.transform='';}
 addEventListener('blur',clearInput);document.addEventListener('visibilitychange',()=>{if(document.hidden){clearInput();last=0;}});
 let drag=null;
 renderer.domElement.addEventListener('pointerdown',e=>{drag={id:e.pointerId,x:e.clientX,y:e.clientY};renderer.domElement.setPointerCapture(e.pointerId);renderer.domElement.focus({preventScroll:true});});
@@ -65,8 +70,8 @@ joystick.addEventListener('pointerdown',e=>{stickId=e.pointerId;joystick.setPoin
 for(const event of ['pointerup','pointercancel','lostpointercapture'])joystick.addEventListener(event,()=>{stickId=null;touch.x=touch.z=0;$('#stick').style.transform='';});
 $('#boost').onclick=()=>{boostToggled=!boostToggled;$('#boost').setAttribute('aria-pressed',String(boostToggled));renderer.domElement.focus({preventScroll:true});};
 $('#help').onclick=()=>{const open=$('#guide').hidden;$('#guide').hidden=!open;$('#help').setAttribute('aria-expanded',String(open));clearInput();};
-$('#reset').onclick=()=>{player.position.set(0,.035,3);player.rotation.y=Math.PI;yaw=0;movementYaw=0;orbitGrace=0;pitch=.32;distance=6.5;velocity.set(0,0,0);clearInput();$('#guide').hidden=true;$('#help').setAttribute('aria-expanded','false');renderer.domElement.focus();};
-const places=[{x:0,z:-9.7,name:'The portal'},{x:10,z:-3,name:'Balancing act'},{x:-10,z:11,name:'The quiet corner'}],found=new Set();
+$('#reset').onclick=()=>{player.position.set(0,.035,3);player.rotation.y=Math.PI;yaw=0;movementYaw=0;orbitGrace=0;pitch=.32;distance=6.5;velocity.set(0,0,0);boostToggled=true;$('#boost').setAttribute('aria-pressed','true');clearInput();$('#guide').hidden=true;$('#help').setAttribute('aria-expanded','false');renderer.domElement.focus();};
+const places=[{x:0,z:-9.7,name:'The portal'},{x:10,z:-3,name:'Balancing act'},{x:-10,z:11,name:'The quiet corner'},{x:-8,z:-12,name:'The fountain'},{x:7,z:10,name:'The garbage can'},{x:12,z:9,name:'The little flock'}],found=new Set();
 function animate(ms){
  const dt=Math.min((ms-(last||ms))/1000,.05);last=ms;
  if(ready){
@@ -92,8 +97,10 @@ function animate(ms){
   if(moving!==walking){walking=moving;const from=walking?idle:walk,to=walking?walk:idle;to.reset().play();from.crossFadeTo(to,.2,false);}
   $('#status').textContent=walking?(boosting?'Picking up the pace':'Taking the scenic route'):'Ready when you are';
   walk.timeScale=Math.max(.15,speed/.85);mixer.update(dt);
-  places.forEach((p,i)=>{if(Math.hypot(player.position.x-p.x,player.position.z-p.z)<3.3&&!found.has(i)){found.add(i);const row=$(`[data-place="${i}"]`);row.classList.add('found');row.querySelector('b').textContent='✓';$('#discovery').textContent=found.size===3?'All three found. Stay a little longer.':`${p.name}, found. ${found.size} of 3.`;}});
+  places.forEach((p,i)=>{if(Math.hypot(player.position.x-p.x,player.position.z-p.z)<3.3&&!found.has(i)){found.add(i);const row=$(`[data-place="${i}"]`);row.classList.add('found');row.querySelector('b').textContent='✓';$('#discovery').textContent=found.size===places.length?'All six found. Stay a little longer.':`${p.name}, found. ${found.size} of ${places.length}.`;}});
  }
+ updateEnvironment(ms/1000,dt,player.position,reduced);
+ updateAudio(dt,player.position,speed);
  aim.copy(player.position).add(new THREE.Vector3(0,1,0));offset.set(Math.sin(yaw)*distance*Math.cos(pitch),distance*Math.sin(pitch),Math.cos(yaw)*distance*Math.cos(pitch));const desired=aim.clone().add(offset);
  camera.position.lerp(desired,reduced?1:1-Math.exp(-8*(dt||.016)));camera.lookAt(aim);renderer.render(scene,camera);
 }

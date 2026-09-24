@@ -49,3 +49,11 @@ For the environment update, all eight movement tests and JavaScript syntax check
 This is an experiment, not a full game: flat terrain, approximate circular obstacle collision, no jumping or running, no camera collision, no multiplayer, and no persistent discovery progress. The scan retains the first-pass skin weights and clothing deformation limitations of the Blender version. Touch layout was tested in the browser, not on physical mobile hardware. Requires WebGL2. It is ready for static hosting but has not been published by this task.
 
 API reference: https://threejs.org/docs/
+
+## Flip jump
+
+Press **Space** or tap **Jump** for a 1.4-second forward flip: anticipation, takeoff, tuck, full rotation, and landing. The jump plays once, blocks repeat jumps until landing, preserves horizontal momentum, suppresses footsteps in the air, and blends back into idle/walk. Reset cancels the jump. This is a stylized animation jump on flat ground; obstacle collision remains active and it does not support jumping onto platforms or over obstacles.
+
+The page loads `assets/ryan-flip.glb`, containing `Idle`, `Walk`, and `FlipJump`. The original `assets/ryan.glb` remains the input. Rebuild with `blender -b --factory-startup --python add_flip.py`; this also creates editable `ryan_flip.blend`. The jump's vertical arc and rotation are embedded in the animation, so do not add another vertical jump offset when reusing it elsewhere. After changing the original character export, run this script again.
+
+Validated Space and button triggering, jump lockout and return to standing in the browser; inspected the inverted tuck in Blender and checked mesh ground clearance. Idle/Walk durations remain 1.0667 seconds. Movement/camera tests pass.

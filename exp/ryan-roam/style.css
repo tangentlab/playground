@@ -13,3 +13,6 @@
 #sound{position:fixed;left:155px;bottom:70px;border:1px solid #8d978680;border-radius:24px;background:#f7f5eed9;padding:12px 18px;font-size:12px;min-height:44px}#sound[aria-pressed="true"]{background:#3c5140;color:white}
 @media(pointer:coarse),(max-width:700px){#sound{left:26px;bottom:260px}}
 @media(max-height:600px){.field-notes{top:80px;bottom:65px;overflow:auto}.intro{top:85px}.intro h1{font-size:34px}.intro>p:not(.eyebrow){display:none}}
+
+#jump{position:fixed;left:275px;bottom:70px;border:1px solid #8d978680;border-radius:24px;background:#f7f5eed9;padding:12px 20px;font-size:12px;min-height:44px;touch-action:manipulation}#jump:disabled{opacity:.45;cursor:default}
+@media(pointer:coarse),(max-width:700px){#jump{left:26px;bottom:315px}}

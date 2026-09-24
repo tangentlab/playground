@@ -13,7 +13,7 @@ r.animation_data.action=None
 for p in r.pose.bones:
  p.location=(0,0,0);p.rotation_mode='QUATERNION';p.rotation_quaternion=(1,0,0,0);p.scale=(1,1,1)
 for side,sign in [('L',1),('R',-1)]:
- p=r.pose.bones['upper_arm.'+side];q=p.bone.matrix_local.to_quaternion();p.rotation_quaternion=q.inverted()@Quaternion((0,1,0),sign*math.radians(47))@q
+ p=r.pose.bones['upper_arm.'+side];q=p.bone.matrix_local.to_quaternion();p.rotation_quaternion=q.inverted()@Quaternion((0,1,0),sign*math.radians(49))@q
 for f in [1,17,33]:
  r.pose.bones['chest'].scale=(1,1.003 if f==17 else 1,1)
  for p in r.pose.bones:

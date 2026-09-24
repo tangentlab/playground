@@ -41,7 +41,7 @@ let movementYaw=0, inputHeading=null, orbitGrace=0;
 const keys=new Set(),touch={x:0,z:0},velocity=new THREE.Vector3(),aim=new THREE.Vector3(),offset=new THREE.Vector3();
 const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 function loadFailed(e){console.error(e);$('#loading-text').textContent='Ryan could not load. Check your connection and try again.';$('#progress').hidden=true;$('#retry').hidden=false;}
-new GLTFLoader().load('./assets/ryan.glb',gltf=>{
+new GLTFLoader().load('./assets/ryan.glb?v=mocap-4',gltf=>{
  player.add(gltf.scene);gltf.scene.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;o.frustumCulled=false;if(o.material.map)o.material.map.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());}});
  mixer=new THREE.AnimationMixer(gltf.scene);
  const walkClip=gltf.animations.find(a=>a.name==='Walk'),idleClip=gltf.animations.find(a=>a.name==='Idle');
@@ -91,7 +91,7 @@ function animate(ms){
   if(moving&&!drag&&orbitGrace===0)yaw=easeAngle(yaw,player.rotation.y-Math.PI,2.8,dt);
   if(moving!==walking){walking=moving;const from=walking?idle:walk,to=walking?walk:idle;to.reset().play();from.crossFadeTo(to,.2,false);}
   $('#status').textContent=walking?(boosting?'Picking up the pace':'Taking the scenic route'):'Ready when you are';
-  walk.timeScale=Math.max(.15,speed/.85);mixer.update(dt);
+  walk.timeScale=THREE.MathUtils.clamp(speed/.95, .15, 2.2);mixer.update(dt);
   places.forEach((p,i)=>{if(Math.hypot(player.position.x-p.x,player.position.z-p.z)<3.3&&!found.has(i)){found.add(i);const row=$(`[data-place="${i}"]`);row.classList.add('found');row.querySelector('b').textContent='✓';$('#discovery').textContent=found.size===3?'All three found. Stay a little longer.':`${p.name}, found. ${found.size} of 3.`;}});
  }
  aim.copy(player.position).add(new THREE.Vector3(0,1,0));offset.set(Math.sin(yaw)*distance*Math.cos(pitch),distance*Math.sin(pitch),Math.cos(yaw)*distance*Math.cos(pitch));const desired=aim.clone().add(offset);

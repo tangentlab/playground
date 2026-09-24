@@ -1,6 +1,6 @@
 # Ryan, out for a walk
 
-A self-contained static Three.js experiment: explore a sculpture garden as Ryan using the refined walk cycle from the Blender animation experiment. Includes camera-relative movement, smooth idle/walk transitions, orbit/zoom, touch movement, simple obstacle collisions, and three discoverable landmarks.
+A self-contained static Three.js experiment: explore a sculpture garden as Ryan using the refined walk cycle from the Blender animation experiment. Includes camera-relative movement, smooth idle/walk transitions, orbit/zoom, touch movement, simple obstacle collisions, and six discoverable landmarks, animated fountain water, reactive birds, and an optional procedural soundscape.
 
 ## Run
 
@@ -15,11 +15,18 @@ Open http://127.0.0.1:8765/. No build step, install, or environment variables. T
 ## Controls
 
 - WASD or arrow keys: walk relative to the camera.
-- Hold Shift to boost, or toggle the on-screen Boost button (also available on touch screens). Normal speed is 1.7 m/s; boost is 3.0 m/s. Walk playback follows movement speed. Boost clears on reset or loss of focus.
+- Fast walking (Boost) is on by default. Toggle the on-screen Boost button for a slower stroll (also available on touch screens), or hold Shift to boost. Normal speed is 1.7 m/s; boost is 3.0 m/s. Walk playback follows movement speed. Reset restores Boost to on. The selected speed is preserved when opening Controls or switching focus; held movement keys are cleared.
 - The camera smoothly turns behind the character while walking. A held movement direction stays stable as the camera catches up.
 - Drag the scene: orbit the camera; automatic following pauses during dragging and briefly afterward. Scroll: zoom.
 - Touch: movement pad on the left, drag the scene to look.
+- Sound off / Sound on: toggle soft wind, fountain water, bird calls, and footsteps. Audio starts only after clicking the button and pauses while the tab is hidden. Water and birds get louder as you approach.
 - Controls → Back to the start: reset position and camera.
+
+## New destinations and sounds
+
+Look for numbered markers 04–06: a stone fountain in the northwest, a garbage can in the southeast, and a nearby flock of six birds. The fountain and bin block movement; birds hop and flutter upward when approached. All six landmarks count toward discovery. Reduced-motion settings disable bird hopping and wing flapping.
+
+`environment.js` builds the new scenery from geometry. `audio.js` uses the Web Audio API for synthesized ambience and footstep effects, with no audio assets or added dependencies. Sounds are stylized rather than recordings. Audio preference is not persisted across reloads.
 
 ## Character
 
@@ -36,6 +43,8 @@ The export script does not overwrite the Blender source.
 ## Validation and limitations
 
 `node --test movement.test.mjs` checks movement direction, equal diagonal speed, touch input magnitude, collision handling, world limits, and angle wrapping. Browser checks cover model loading, touch movement, camera orbit, controls/reset, and narrow/desktop layouts. GLB was checked for both animation clips and skin data.
+
+For the environment update, all eight movement tests and JavaScript syntax checks passed. Browser inspection confirmed loading, the six-item list, narrow layout, and sound on/off controls without console errors. Audio fidelity has not been verified by listening, and physical mobile audio remains untested.
 
 This is an experiment, not a full game: flat terrain, approximate circular obstacle collision, no jumping or running, no camera collision, no multiplayer, and no persistent discovery progress. The scan retains the first-pass skin weights and clothing deformation limitations of the Blender version. Touch layout was tested in the browser, not on physical mobile hardware. Requires WebGL2. It is ready for static hosting but has not been published by this task.
 

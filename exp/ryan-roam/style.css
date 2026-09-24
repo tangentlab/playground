@@ -9,3 +9,7 @@
 @media(max-width:700px){#boost{left:26px;bottom:205px}}
 /* A quiet sage dot keeps the pointer visible without distracting from the scene. */
 #world canvas{cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='3.5' fill='%23536454' fill-opacity='.45' stroke='%23f7f5ee' stroke-opacity='.7' stroke-width='1'/%3E%3C/svg%3E") 12 12,crosshair}
+
+#sound{position:fixed;left:155px;bottom:70px;border:1px solid #8d978680;border-radius:24px;background:#f7f5eed9;padding:12px 18px;font-size:12px;min-height:44px}#sound[aria-pressed="true"]{background:#3c5140;color:white}
+@media(pointer:coarse),(max-width:700px){#sound{left:26px;bottom:260px}}
+@media(max-height:600px){.field-notes{top:80px;bottom:65px;overflow:auto}.intro{top:85px}.intro h1{font-size:34px}.intro>p:not(.eyebrow){display:none}}

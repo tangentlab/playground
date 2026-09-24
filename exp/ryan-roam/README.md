@@ -57,3 +57,13 @@ Press **Space** or tap **Jump** for a 1.4-second forward flip: anticipation, tak
 The page loads `assets/ryan-flip.glb`, containing `Idle`, `Walk`, and `FlipJump`. The original `assets/ryan.glb` remains the input. Rebuild with `blender -b --factory-startup --python add_flip.py`; this also creates editable `ryan_flip.blend`. The jump's vertical arc and rotation are embedded in the animation, so do not add another vertical jump offset when reusing it elsewhere. After changing the original character export, run this script again.
 
 Validated Space and button triggering, jump lockout and return to standing in the browser; inspected the inverted tuck in Blender and checked mesh ground clearance. Idle/Walk durations remain 1.0667 seconds. Movement/camera tests pass.
+
+## Level 02 — After hours
+
+Choose **02 / After hours** above the title, or open `?level=night`, to enter a neon music courtyard under a starry sky. **01 / Garden** returns to the original daytime level. Switching levels reloads the scene and resets position, discovery progress, and sound preference.
+
+Six new destinations include a modular synthesizer with patch cables and keys, DJ turntables and mixer, a floating VR headset and controllers, a listening station with a portable music player, an overhead laser array, and a tape archive. The courtyard has neon paving, a distant skyline, animated record platters and equalizer bars, and slow laser sweeps. Reduced-motion settings stop the night scenery animations. The equipment is decorative rather than playable.
+
+Turn **Sound on** for a procedural electronic arpeggio, bass pulse, and footsteps. No additional assets, dependencies, or environment variables are required. `night.js` builds the scene, while movement, collisions, camera controls, and flip animations remain shared with the garden.
+
+Validation: all eight movement tests and JavaScript syntax checks passed. Browser inspection covered narrow and desktop layouts, night character loading, sound on/off, flip triggering, and returning to the garden. No browser console errors were reported during the night checks. Audio quality has not been verified by listening; physical mobile devices remain untested.

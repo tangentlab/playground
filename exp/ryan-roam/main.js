@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {addEnvironment} from './environment.js';
+import {addNight,nightPlaces} from './night.js';
 import {gardenAudio} from './audio.js';
 import {direction,resolvePosition,angleDelta,easeAngle} from './movement.mjs';
 const $=s=>document.querySelector(s),world=$('#world');
@@ -8,6 +9,10 @@ const scene=new THREE.Scene();scene.background=new THREE.Color('#e7e8de');scene.
 const camera=new THREE.PerspectiveCamera(43,innerWidth/innerHeight,.1,100);
 const renderer=new THREE.WebGLRenderer({antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio,1.75));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.2;world.append(renderer.domElement);
 renderer.domElement.setAttribute('aria-label','3D garden. Use WASD or arrow keys to walk, and drag to orbit.');renderer.domElement.tabIndex=0;
+const night=new URLSearchParams(location.search).get('level')==='night';
+const obstacles=[];
+function solid(x,z,r){obstacles.push({x,z,r});}
+function buildGarden(){
 scene.add(new THREE.HemisphereLight(0xfff7df,0x687857,2.4));
 const sun=new THREE.DirectionalLight(0xffeed5,3.2);sun.position.set(-8,16,7);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);Object.assign(sun.shadow.camera,{left:-28,right:28,top:28,bottom:-28,near:1,far:60});sun.shadow.normalBias=.025;scene.add(sun);
 const materials={sand:new THREE.MeshStandardMaterial({color:0xdad6bf,roughness:1}),stone:new THREE.MeshStandardMaterial({color:0xece7d7,roughness:.85}),clay:new THREE.MeshStandardMaterial({color:0xb76345,roughness:.8}),green:new THREE.MeshStandardMaterial({color:0x63795a,roughness:1}),bark:new THREE.MeshStandardMaterial({color:0x82735b,roughness:1}),dark:new THREE.MeshStandardMaterial({color:0x536454,roughness:.75})};
@@ -16,8 +21,6 @@ mesh(new THREE.PlaneGeometry(180,180),new THREE.MeshStandardMaterial({color:0xc1
 mesh(new THREE.CylinderGeometry(24,24,0.06,96),materials.sand,0,-.005,0);
 // Fine concentric paving lines make movement legible without a busy grid.
 for(const radius of [4,8,12,16,20,23.7]){const ring=mesh(new THREE.RingGeometry(radius,radius+.025,128),new THREE.MeshBasicMaterial({color:0xbabda5,side:THREE.DoubleSide}),0,.031,0);ring.rotation.x=-Math.PI/2;}
-const obstacles=[];
-function solid(x,z,r){obstacles.push({x,z,r});}
 function tree(x,z,size=1){mesh(new THREE.CylinderGeometry(.1,.16,1.8,7),materials.bark,x,.9,z);const crown=mesh(new THREE.IcosahedronGeometry(1.2,1),materials.green,x,2.6,z);crown.scale.set(size,1.1*size,size);solid(x,z,.28);}
 for(let i=0;i<29;i++){const t=i*2.39996,r=25+(i%5)*2;tree(Math.cos(t)*r,Math.sin(t)*r,.85+(i%4)*.16);}
 for(const [x,z] of [[-6,-3],[8,2],[-10,7],[5,-12],[-14,-9],[13,-8]]){
@@ -36,8 +39,20 @@ for(const x of [-11.25,-8.75])mesh(new THREE.BoxGeometry(.25,.6,.65),materials.c
 function marker(text,x,z){const c=document.createElement('canvas');c.width=256;c.height=128;const ctx=c.getContext('2d');ctx.fillStyle='#ece7d7';ctx.fillRect(0,0,256,128);ctx.fillStyle='#52624e';ctx.font='44px sans-serif';ctx.textAlign='center';ctx.fillText(text,128,78);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;const sign=mesh(new THREE.BoxGeometry(.65,.34,.04),new THREE.MeshStandardMaterial({map:t}),x,.9,z);mesh(new THREE.CylinderGeometry(.025,.025,.75,8),materials.dark,x,.4,z);}
 marker('01',-2.6,-8.8);marker('02',8,-1.8);marker('03',-7.5,10.5);
 marker('04',-5.7,-10.8);marker('05',6,10.8);marker('06',11,11);
-const updateEnvironment=addEnvironment(scene,solid,materials);
-const updateAudio=gardenAudio($('#sound'));
+return addEnvironment(scene,solid,materials);
+}
+const updateEnvironment=night?addNight(scene,solid):buildGarden();
+if(night){
+ document.body.classList.add('night');document.title='Ryan, after hours — Playground';
+ $('.intro .eyebrow').textContent='A LITTLE FURTHER AFTER DARK';$('.intro h1').innerHTML='Ryan,<br>after hours.';$('.intro>p:not(.eyebrow)').innerHTML='Follow the frequencies.<br>Find your own rhythm.';
+ $('.edition b').textContent='002';$('.field-notes .eyebrow').textContent='AROUND THE NIGHT LAB';
+ $('.field-notes ol').innerHTML=nightPlaces.map((p,i)=>`<li data-place="${i}"><span>0${i+1}</span>${p.name}<b>○</b></li>`).join('');
+ $('#location').textContent='NIGHT LAB ↗';$('#loading-text').textContent='Tuning in to the night…';
+ $('#world').setAttribute('aria-label','An interactive neon music courtyard');renderer.domElement.setAttribute('aria-label','3D night courtyard. Use WASD or arrow keys to walk, and drag to orbit.');
+ $('#sound').title='Toggle electronic music and footsteps';
+}
+ document.querySelectorAll('[data-level]').forEach(a=>{if(a.dataset.level===(night?'night':'garden'))a.setAttribute('aria-current','page');});
+const updateAudio=gardenAudio($('#sound'),night);
 const player=new THREE.Group();scene.add(player);player.position.set(0,.035,3);player.rotation.y=Math.PI;
 let jumpAction,jumpElapsed=0,jumping=false;
 let mixer,walk,idle,ready=false,walking=false,speed=0,yaw=0,pitch=.32,distance=6.5,last=0;
@@ -81,7 +96,7 @@ for(const event of ['pointerup','pointercancel','lostpointercapture'])joystick.a
 $('#boost').onclick=()=>{boostToggled=!boostToggled;$('#boost').setAttribute('aria-pressed',String(boostToggled));renderer.domElement.focus({preventScroll:true});};
 $('#help').onclick=()=>{const open=$('#guide').hidden;$('#guide').hidden=!open;$('#help').setAttribute('aria-expanded',String(open));clearInput();};
 $('#reset').onclick=()=>{if(jumpAction){jumpAction.stop();walk.stop();idle.reset().play();}jumping=false;jumpElapsed=0;walking=false;$('#jump').disabled=!ready;player.position.set(0,.035,3);player.rotation.y=Math.PI;yaw=0;movementYaw=0;orbitGrace=0;pitch=.32;distance=6.5;velocity.set(0,0,0);boostToggled=true;$('#boost').setAttribute('aria-pressed','true');clearInput();$('#guide').hidden=true;$('#help').setAttribute('aria-expanded','false');renderer.domElement.focus();};
-const places=[{x:0,z:-9.7,name:'The portal'},{x:10,z:-3,name:'Balancing act'},{x:-10,z:11,name:'The quiet corner'},{x:-8,z:-12,name:'The fountain'},{x:7,z:10,name:'The garbage can'},{x:12,z:9,name:'The little flock'}],found=new Set();
+const places=night?nightPlaces:[{x:0,z:-9.7,name:'The portal'},{x:10,z:-3,name:'Balancing act'},{x:-10,z:11,name:'The quiet corner'},{x:-8,z:-12,name:'The fountain'},{x:7,z:10,name:'The garbage can'},{x:12,z:9,name:'The little flock'}],found=new Set();
 function animate(ms){
  const dt=Math.min((ms-(last||ms))/1000,.05);last=ms;
  if(ready){

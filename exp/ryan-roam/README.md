@@ -1,6 +1,6 @@
 # Ryan, out for a walk
 
-A self-contained static Three.js experiment: explore a sculpture garden as Ryan using the refined walk cycle from the Blender animation experiment. Includes camera-relative movement, smooth idle/walk transitions, orbit/zoom, touch movement, simple obstacle collisions, and six discoverable landmarks, animated fountain water, reactive birds, and an optional procedural soundscape.
+A self-contained static Three.js experiment: explore a sculpture garden as Ryan using the pose-based walk cycle from the Blender animation experiment. Includes camera-relative movement, smooth idle/walk transitions, orbit/zoom, touch movement, simple obstacle collisions, and six discoverable landmarks, animated fountain water, reactive birds, and an optional procedural soundscape.
 
 ## Run
 
@@ -30,12 +30,12 @@ Look for numbered markers 04–06: a stone fountain in the northwest, a garbage 
 
 ## Character
 
-`assets/ryan.glb` embeds the texture, skinned mesh, and Idle/Walk clips (about 3.6 MB). It is exported from `../ryan-walk-cycle/ryan_walk_refined.blend`; the web runtime does not need that source file. The export bakes the corrected IK knee motion into bone animation, reduces geometry to about 47,000 vertices before skin deformation, and resizes the texture to 2048². Walk speed is matched approximately to the source stride, and stopping cross-fades into a standing pose.
+`assets/ryan.glb` embeds the texture, skinned mesh, and Idle/Walk clips (about 3.6 MB). It is exported from `../ryan-walk-cycle/ryan_walk_posed.blend`; the web runtime does not need that source file. The export bakes the corrected IK knee motion into bone animation, reduces geometry to about 47,000 vertices before skin deformation, and resizes the texture to 2048². Walk speed is matched approximately to the new 0.48 m planted-foot travel over 0.696 seconds, and stopping cross-fades into a standing pose.
 
 Re-export with Blender:
 
 ```sh
-blender -b ../ryan-walk-cycle/ryan_walk_refined.blend --python export_character.py
+blender -b ../ryan-walk-cycle/ryan_walk_posed.blend --python export_character.py
 ```
 
 The export script does not overwrite the Blender source.
@@ -56,7 +56,7 @@ Press **Space** or tap **Jump** for a 1.4-second forward flip: anticipation, tak
 
 The page loads `assets/ryan-flip.glb`, containing `Idle`, `Walk`, and `FlipJump`. The original `assets/ryan.glb` remains the input. Rebuild with `blender -b --factory-startup --python add_flip.py`; this also creates editable `ryan_flip.blend`. The jump's vertical arc and rotation are embedded in the animation, so do not add another vertical jump offset when reusing it elsewhere. After changing the original character export, run this script again.
 
-Validated Space and button triggering, jump lockout and return to standing in the browser; inspected the inverted tuck in Blender and checked mesh ground clearance. Idle/Walk durations remain 1.0667 seconds. Movement/camera tests pass.
+Validated Space and button triggering, jump lockout and return to standing in the browser; inspected the inverted tuck in Blender and checked mesh ground clearance. Idle/Walk durations are 1.2 seconds with the latest walk. Movement/camera tests pass.
 
 ## Level 02 — After hours
 
@@ -67,3 +67,11 @@ Six new destinations include a modular synthesizer with patch cables and keys, D
 Turn **Sound on** for a procedural electronic arpeggio, bass pulse, and footsteps. No additional assets, dependencies, or environment variables are required. `night.js` builds the scene, while movement, collisions, camera controls, and flip animations remain shared with the garden.
 
 Validation: all eight movement tests and JavaScript syntax checks passed. Browser inspection covered narrow and desktop layouts, night character loading, sound on/off, flip triggering, and returning to the garden. No browser console errors were reported during the night checks. Audio quality has not been verified by listening; physical mobile devices remain untested.
+
+## Latest walk update
+
+Both Garden and After hours now use the pose-based walk: clearer heel contact, weight settling, knee-led recovery, push-off, and closer arm passing poses. The flip jump is preserved. Animation playback follows movement speed using the new stride, and the character URL has a new cache version.
+
+To recreate the source locally, run Blender against `../ryan-walk-cycle/ryan_walk_refined.blend` with `--python ../ryan-walk-cycle/posed_walk.py`, then export the resulting `ryan_walk_posed.blend` with `export_character.py` and rebuild the flip with `add_flip.py`. Web exports bake the entire source cycle plus its repeated boundary frame and shift animation timestamps to zero.
+
+Validation for this update: eight movement tests and JavaScript syntax checks pass. Both GLBs contain zero-based 1.2-second Idle/Walk clips and skin data; the combined asset retains the 1.4-second FlipJump. Browser inspection confirmed the updated character loads and walks in Garden and After hours, and Space triggers the flip and returns to idle. No console errors were observed.

@@ -33,5 +33,5 @@ flip=r.animation_data.action;flip.name='FlipJump';flip.use_fake_user=True
 s.frame_start=1;s.frame_end=43;s.frame_set(1)
 bpy.context.preferences.filepaths.save_version=0
 bpy.ops.wm.save_as_mainfile(filepath=out+'/ryan_flip.blend')
-bpy.ops.export_scene.gltf(filepath=out+'/assets/ryan-flip.glb',export_format='GLB',export_animations=True,export_animation_mode='ACTIONS',export_force_sampling=True,export_frame_range=False,export_skins=True,export_image_format='JPEG',export_jpeg_quality=85)
+bpy.ops.export_scene.gltf(filepath=out+'/assets/ryan-flip.glb',export_format='GLB',export_animations=True,export_animation_mode='ACTIONS',export_anim_slide_to_zero=True,export_force_sampling=True,export_frame_range=False,export_skins=True,export_image_format='JPEG',export_jpeg_quality=85)
 print('ACTIONS',[(a.name,tuple(a.frame_range)) for a in bpy.data.actions])

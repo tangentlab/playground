@@ -1,0 +1,4 @@
+# GitHub Pages serves the Git tree directly, without resolving LFS pointers.
+# Keep this self-contained game's browser assets as ordinary Git files.
+assets/** -filter -diff -merge -text
+screenshot.png -filter -diff -merge -text

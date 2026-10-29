@@ -1,6 +1,8 @@
-# Wildwood — Jungle Hunt
+# Operation Wildwood
 
-Playable desktop first-person hunting prototype in a procedural low-poly jungle. Track five deer or boar, then return to the amber beacon at camp. Trees block movement and shots; wildlife flees nearby hunters and gunfire. Close boar encounters damage health.
+A playable desktop first-person jungle commando adventure with an ’80s/16-bit arcade direction. Enter Sector 07, silence three mysterious transmitters, and return to the amber extraction beacon. Hostile patrols fire dodgeable projectiles; wildlife roams the jungle; supply caches grant useful upgrades.
+
+The scene renders to a genuinely low-resolution framebuffer, scaled with nearest-neighbor filtering. Original pixel sprites, textured trunks and ground, stone ruins, hanging vines, a local bitmap font, scanlines, radar, score, and a chunky weapon/HUD replace the earlier hunting-demo presentation. The perspective remains first-person.
 
 ## Run
 
@@ -10,35 +12,41 @@ From the repository root:
 python3 -m http.server 8765
 ```
 
-Open http://localhost:8765/exp/jungle-hunt/ in a desktop browser supporting WebGL. No installation, build, environment variables, or network connection is required. Three.js 0.183.0 is bundled in `vendor/` with its MIT license.
+Open http://localhost:8765/exp/jungle-hunt/ in a desktop browser supporting WebGL. No install, build, environment variables, or network connection is required. Three.js 0.183.0 is bundled in `vendor/` with its MIT license. The bundled Press Start 2P font is distributed under the SIL Open Font License (`assets/FONT-LICENSE.txt`).
 
-## Controls and supplies
+## Mission and controls
 
-- WASD: move; mouse: look; left click: fire; R: reload.
-- Shift: sprint, consuming stamina; release to recover.
-- E: collect a nearby glowing item.
-- Escape: pause; click Resume to continue.
-- Arrow keys also look around, including in embedded browsers without mouse capture.
+- WASD: move; mouse: aim; arrow keys: alternate aiming when mouse capture is unavailable.
+- Left click or Space: fire; hold for automatic fire. The rifle holds 12 rounds; R reloads. Firing an empty magazine automatically reloads if reserve ammo is available.
+- Shift: run, consuming power; release to recover.
+- E: disable a nearby cyan transmitter or collect a glowing supply cache.
 - Right click: zoom after finding a scope; release to restore normal view.
-- Sound button toggles the looping soundtrack and synthesized rifle/pickup effects. Music starts when entering the jungle, pauses with the game, and resumes from the same position.
+- Escape or leaving the game window: pause. Click Resume Mission to continue.
+- Sound button: toggle the looping soundtrack and synthesized arcade effects.
 
-Amber cubes grant 18 rounds; pink first-aid kits restore up to 50 health; turquoise trail boots increase speed; lavender scopes unlock zoom; lime tonics restore stamina. The minimap shows nearby wildlife (salmon), supplies (their item color), and camp (amber). The player starts facing north, five meters south of camp.
+Disable all three transmitters (500 points each), then reach the amber camp beacon to complete the mission. Patrols award 250 points; optional wildlife hunting awards 100; caches award 50. Enemy shots deal 12 damage. Close boar encounters also damage health. Trees and ruin pillars block movement, line of sight, and projectiles.
+
+Amber caches grant 24 rounds; pink medkits restore up to 50 health; turquoise boots increase speed; lavender scopes unlock zoom; lime tonics restore power. Radar shows nearby patrols (red), transmitters (cyan), camp (amber), wildlife (muted gold), and supplies in their item colors. The player starts facing north, five meters south of camp.
 
 ## Soundtrack
 
-“Push2 test 2_2” — Guidewire, supplied by the user. The original WAV is preserved outside the experiment; `assets/push2-test-2_2.mp3` is a 192 kbps browser copy with embedded metadata removed. Music plays at 45% volume and loops.
+“Push2 test 2_2” — Guidewire, supplied by the user. `assets/push2-test-2_2-loop.mp3` is a 192 kbps browser copy with embedded metadata removed. A four-second tail-to-head crossfade smooths the repeat point; playback begins four seconds into the original and the loop lasts 5:04. Music plays at 45% volume and loops automatically. It starts with the mission, pauses with the game, and resumes at the same position. The original WAV is unchanged.
 
-## Validation
+## Validation and art generation
 
 ```sh
 node --check exp/jungle-hunt/game.js
 node exp/jungle-hunt/smoke-test.mjs
 ```
 
-The dependency-free smoke test uses real Three.js geometry with a mocked renderer and DOM to verify entry/pause, firing, reload accounting, all supply types, scope zoom, five raycast hits, and extraction. It does not verify WebGL or physical inputs.
+The dependency-free smoke test uses real Three.js geometry and sprite raycasts with a mocked renderer, texture loader, and DOM. It verifies sound controls, pause/resume, firing after reload, held keyboard fire, supplies/healing, zoom, enemy and wildlife hits, patrol projectiles and damage, all three transmitters, extraction, and defeat. It does not substitute for WebGL and physical-input browser QA.
 
-Serve the page and check entry/pause, movement, ammo decrement and reload, supply collection, zoom after scope collection, and returning to camp after five hunts. Browser QA and its limits are reported in the task handoff.
+Regenerate the original pixel sprites and textures with the Python standard library:
+
+```sh
+python3 exp/jungle-hunt/make-art.py
+```
 
 ## Known limitations
 
-Prototype: desktop keyboard/mouse only, no touch controls, save system, multiplayer, realistic ballistics, or animated skeletal models. Wildlife uses simple steering and can pass through trees or water. The minimap deliberately reveals nearby wildlife and supplies. Health damage comes from close boar encounters; animals have one-hit arcade health. Restart reloads the page. The river is decorative and walkable.
+Prototype: desktop keyboard/mouse only; no touch controls, saves, multiplayer, or level selection. This is an arcade aesthetic rather than an emulation of specific vintage hardware. Patrol AI uses simple pursuit and line-of-sight checks, without pathfinding around trees. Wildlife can pass through scenery. Sprite hitboxes are rectangular. The river is decorative and walkable. Restart reloads the page. Scanlines and vignette are disabled when the system requests reduced motion.

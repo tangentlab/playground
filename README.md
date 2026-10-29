@@ -7,7 +7,7 @@ https://tangentlab.github.io/playground/
 
 ## Experiments
 
-- [Wildwood — Jungle Hunt](exp/jungle-hunt/README.md): A first-person jungle hunting game with roaming wildlife, discoverable supplies, and camp extraction.
+- [Operation Wildwood](exp/jungle-hunt/README.md): A retro pixel-art jungle commando adventure with hostile patrols, mysterious transmitters, wildlife, upgrades, and a looping Guidewire soundtrack.
 
 - [Ryan walk cycle](exp/ryan-walk-cycle/README.md): Blender scan rigging and an in-place walking animation.
 - [Ryan, out for a walk](exp/ryan-roam/README.md): Playable 3D sculpture garden and neon After hours music courtyard using Ryan’s scanned character, walk cycle, and flip jump.

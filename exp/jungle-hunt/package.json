@@ -1,0 +1,1 @@
+{"private":true,"type":"module","scripts":{"check":"node --check game.js","test":"node smoke-test.mjs"}}

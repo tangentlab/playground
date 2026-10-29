@@ -1,0 +1,272 @@
+{
+  "artist": "Guidewire",
+  "source": "https://guidewire.bandcamp.com/music",
+  "fetched": "2026-10-15",
+  "releases": [
+    {
+      "title": "Dodger",
+      "url": "https://guidewire.bandcamp.com/track/dodger",
+      "art": "https://f4.bcbits.com/img/a0999437546_2.jpg",
+      "date": "2026-02-06",
+      "tags": [
+        "electronic",
+        "drone",
+        "experimental-electronic",
+        "idm",
+        "noise",
+        "sound art",
+        "regina"
+      ]
+    },
+    {
+      "title": "Awaken",
+      "url": "https://guidewire.bandcamp.com/album/awaken",
+      "art": "https://f4.bcbits.com/img/a1755642057_2.jpg",
+      "date": "2025-09-12",
+      "tags": [
+        "electronic",
+        "drone",
+        "experimental-electronic",
+        "idm",
+        "noise",
+        "sound art",
+        "regina"
+      ]
+    },
+    {
+      "title": "Rough and Tumble",
+      "url": "https://guidewire.bandcamp.com/album/rough-and-tumble",
+      "art": "https://f4.bcbits.com/img/a4095948518_2.jpg",
+      "date": "2025-05-16",
+      "tags": [
+        "electronic",
+        "drone",
+        "experimental-electronic",
+        "idm",
+        "noise",
+        "sound art",
+        "regina"
+      ]
+    },
+    {
+      "title": "Obsidian Grove",
+      "url": "https://guidewire.bandcamp.com/track/obsidian-grove",
+      "art": "https://f4.bcbits.com/img/a0451687356_2.jpg",
+      "date": "2024-12-31",
+      "tags": [
+        "electronic",
+        "drone",
+        "experimental-electronic",
+        "idm",
+        "noise",
+        "sound art",
+        "regina"
+      ]
+    },
+    {
+      "title": "A Gentle Hike",
+      "url": "https://guidewire.bandcamp.com/track/a-gentle-hike",
+      "art": "https://f4.bcbits.com/img/a2215050155_2.jpg",
+      "date": "2024-07-04",
+      "tags": [
+        "electronic",
+        "drone",
+        "experimental-electronic",
+        "idm",
+        "noise",
+        "sound art",
+        "regina"
+      ]
+    },
+    {
+      "title": "BERF 2",
+      "url": "https://guidewire.bandcamp.com/album/berf-2",
+      "art": "https://f4.bcbits.com/img/a3783656305_2.jpg",
+      "date": "2024-03-01",
+      "tags": [
+        "electronic",
+        "drone",
+        "experimental-electronic",
+        "idm",
+        "noise",
+        "sound art",
+        "regina"
+      ]
+    },
+    {
+      "title": "The Waiting Room",
+      "url": "https://guidewire.bandcamp.com/album/the-waiting-room",
+      "art": "https://f4.bcbits.com/img/a3431359259_2.jpg",
+      "date": "2024-01-05",
+      "tags": [
+        "electronic",
+        "drone",
+        "experimental-electronic",
+        "idm",
+        "noise",
+        "sound art",
+        "regina"
+      ]
+    },
+    {
+      "title": "Boreal Tenebrae (soundtrack)",
+      "url": "https://guidewire.bandcamp.com/album/boreal-tenebrae-soundtrack",
+      "art": "https://f4.bcbits.com/img/a4193605286_2.jpg",
+      "date": "2020-06-04",
+      "tags": [
+        "electronic",
+        "drone",
+        "experimental-electronic",
+        "idm",
+        "noise",
+        "sound art",
+        "soundtrack",
+        "regina"
+      ]
+    },
+    {
+      "title": "Fertility EP",
+      "url": "https://guidewire.bandcamp.com/album/fertility-ep",
+      "art": "https://f4.bcbits.com/img/a0052581133_2.jpg",
+      "date": "2015-02-12",
+      "tags": [
+        "canadian",
+        "electronic",
+        "beats",
+        "dance",
+        "drone",
+        "experimental-electronic",
+        "idm",
+        "noise",
+        "sound art",
+        "regina"
+      ]
+    },
+    {
+      "title": "Surges EP",
+      "url": "https://guidewire.bandcamp.com/album/surges-ep",
+      "art": "https://f4.bcbits.com/img/a1146483676_2.jpg",
+      "date": "2015-06-22",
+      "tags": [
+        "electronic",
+        "ambient",
+        "drone",
+        "experimental electronic",
+        "experimental-electronic",
+        "idm",
+        "noise",
+        "slow",
+        "sound art",
+        "regina"
+      ]
+    },
+    {
+      "title": "BERF",
+      "url": "https://guidewire.bandcamp.com/album/berf",
+      "art": "https://f4.bcbits.com/img/a0104826246_2.jpg",
+      "date": "2018-06-24",
+      "tags": [
+        "electronic",
+        "experimental",
+        "drone",
+        "experimental-electronic",
+        "idm",
+        "noise",
+        "sound art",
+        "sound design",
+        "regina"
+      ]
+    },
+    {
+      "title": "Aberrations",
+      "url": "https://guidewire.bandcamp.com/album/aberrations",
+      "art": "https://f4.bcbits.com/img/a1025283144_2.jpg",
+      "date": "2018-09-23",
+      "tags": [
+        "electronic",
+        "drone",
+        "experimental-electronic",
+        "idm",
+        "noise",
+        "sound art",
+        "regina"
+      ]
+    },
+    {
+      "title": "Moog Cycles",
+      "url": "https://guidewire.bandcamp.com/album/moog-cycles",
+      "art": "https://f4.bcbits.com/img/a3276117683_2.jpg",
+      "date": "2012-01-14",
+      "tags": [
+        "electronic",
+        "ambient",
+        "ambient electronic",
+        "animoog",
+        "canadian",
+        "drone",
+        "experimental-electronic",
+        "idm",
+        "ipad",
+        "loops",
+        "moog",
+        "noise",
+        "sound art",
+        "synths",
+        "regina"
+      ]
+    },
+    {
+      "title": "Next To",
+      "url": "https://guidewire.bandcamp.com/track/next-to",
+      "art": "https://f4.bcbits.com/img/a1481624327_2.jpg",
+      "date": "2018-07-30",
+      "tags": [
+        "electronic",
+        "drone",
+        "experimental-electronic",
+        "idm",
+        "noise",
+        "sound art",
+        "regina"
+      ]
+    },
+    {
+      "title": "Meme Theory",
+      "url": "https://guidewire.bandcamp.com/album/meme-theory",
+      "art": "https://f4.bcbits.com/img/a4128865053_2.jpg",
+      "date": "2007-01-01",
+      "tags": [
+        "electronic",
+        "ambient",
+        "canadian",
+        "drone",
+        "electronica",
+        "experimental-electronic",
+        "glitch",
+        "idm",
+        "instrumental",
+        "noise",
+        "sound art",
+        "regina"
+      ]
+    },
+    {
+      "title": "Field Recordings",
+      "url": "https://guidewire.bandcamp.com/album/field-recordings",
+      "art": "https://f4.bcbits.com/img/a2653707529_2.jpg",
+      "date": "2017-10-30",
+      "tags": [
+        "electronic",
+        "ambient",
+        "drone",
+        "environmental",
+        "experimental-electronic",
+        "field recordings",
+        "idm",
+        "noise",
+        "sound art",
+        "regina"
+      ]
+    }
+  ]
+}

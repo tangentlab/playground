@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Guidewire — Sound Atlas</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header>
+      <a
+        class="brand"
+        href="https://guidewire.bandcamp.com/music"
+        target="_blank"
+        rel="noopener"
+        >GUIDEWIRE<span>SOUND ATLAS / 001</span></a
+      >
+      <div class="header-right">
+        <span class="live">PUBLIC DISCOGRAPHY</span
+        ><a
+          href="https://guidewire.bandcamp.com/music"
+          target="_blank"
+          rel="noopener"
+          >Bandcamp ↗</a
+        >
+      </div>
+    </header>
+    <main>
+      <section class="intro">
+        <div>
+          <p class="eyebrow">AN EXPERIMENT IN SPATIAL LISTENING</p>
+          <h1>A constellation<br />of sound.</h1>
+          <p class="sub">
+            Explore the connections across Guidewire’s releases.<br />Pick a
+            record. Follow a thread. Find your next listen.
+          </p>
+        </div>
+        <div class="stats">
+          <strong id="count">—</strong><span>RELEASES IN ORBIT</span
+          ><small>Regina, Saskatchewan<br />Electronic / experimental</small>
+        </div>
+      </section>
+      <section class="workspace" aria-label="Interactive music atlas">
+        <nav class="toolbar">
+          <div class="layouts" aria-label="Spatial layout">
+            <button class="active" data-layout="network" aria-pressed="true">
+              Constellation</button
+            ><button data-layout="timeline" aria-pressed="false">
+              Timeline</button
+            ><button data-layout="sphere" aria-pressed="false">Sphere</button>
+          </div>
+          <label class="search"
+            ><span>⌕</span
+            ><input
+              id="search"
+              type="search"
+              placeholder="Find a release or tag…"
+              aria-label="Find a release or tag"
+          /></label>
+        </nav>
+        <div class="atlas">
+          <div id="space" aria-label="Drag to rotate, scroll to zoom">
+            <canvas id="edges" aria-hidden="true"></canvas>
+            <div id="nodes"></div>
+            <span class="axis axis-x">X / RELEASE</span
+            ><span class="axis axis-y">Y / RESONANCE</span>
+            <div class="scene-label">
+              <i></i> <span id="view-label">CONSTELLATION VIEW</span>
+            </div>
+          </div>
+          <aside id="detail" aria-label="Selected release">
+            <p class="eyebrow">ON THE RADAR</p>
+            <div id="detail-content"><p>Loading your atlas…</p></div>
+          </aside>
+        </div>
+        <footer class="scene-footer">
+          <span
+            >DRAG TO ORBIT <b>·</b> SCROLL TO ZOOM <b>·</b> SELECT TO
+            EXPLORE</span
+          >
+          <div>
+            <button id="motion" aria-pressed="false">Auto-orbit: off</button
+            ><button id="reset">Reset view ↺</button>
+          </div>
+        </footer>
+      </section>
+      <div class="bottom">
+        <p>
+          <span class="dot"></span> Connections reveal shared Bandcamp tags.
+          Space is an exploratory layout.
+        </p>
+        <span id="snapshot">Loading snapshot…</span>
+      </div>
+      <p id="status" role="status" class="status"></p>
+    </main>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>

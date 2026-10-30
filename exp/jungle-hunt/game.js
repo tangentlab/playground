@@ -191,23 +191,43 @@ function tone(frequency, duration = .1, type = 'square') {
   oscillator.connect(gain).connect(audioCtx.destination);
   oscillator.start(); oscillator.stop(audioCtx.currentTime + duration);
 }
+let musicAttempt = null, musicNeedsGesture = false, playbackId = 0;
+function updateSoundButton() {
+  $('sound').textContent = !audioOn ? '♪ SOUND OFF' : musicNeedsGesture ? '▶ PLAY MUSIC' : '♪ SOUND ON';
+  $('sound').setAttribute('aria-pressed', String(audioOn));
+}
+function stopMusic() {
+  playbackId++; musicAttempt = null; soundtrack.pause();
+}
 function playMusic() {
-  if (audioOn) soundtrack.play().catch(error => {
-    if (error.name !== 'AbortError') notice('AUDIO OFFLINE / TOGGLE SOUND TO RETRY');
-  });
+  if (!audioOn || !soundtrack.paused) return;
+  if (musicAttempt) return musicAttempt;
+  const id = ++playbackId;
+  // Call play synchronously in the Start click, before awaiting mouse capture.
+  // The enter event reuses this attempt instead of starting a competing request.
+  musicAttempt = soundtrack.play().then(() => {
+    if (id !== playbackId) return;
+    musicNeedsGesture = false; updateSoundButton();
+  }).catch(error => {
+    if (id !== playbackId || error.name === 'AbortError') return;
+    musicNeedsGesture = true; updateSoundButton();
+    notice(error.name === 'NotAllowedError'
+      ? 'CLICK PLAY MUSIC TO ENABLE THE SOUNDTRACK'
+      : 'MUSIC UNAVAILABLE / CLICK PLAY MUSIC TO RETRY', 6);
+  }).finally(() => { if (id === playbackId) musicAttempt = null; });
+  return musicAttempt;
 }
 $('sound').onclick = () => {
-  audioOn = !audioOn;
-  $('sound').textContent = audioOn ? '♪ SOUND ON' : '♪ SOUND OFF';
-  $('sound').setAttribute('aria-pressed', String(audioOn));
-  if (audioOn && active) playMusic(); else soundtrack.pause();
+  if (musicNeedsGesture && audioOn && active) { playMusic(); return; }
+  audioOn = !audioOn; updateSoundButton();
+  if (audioOn && active) playMusic(); else stopMusic();
 };
 function enter() {
   active = true; keys.clear(); fireHeld = false; playMusic();
   $('overlay').style.display = 'none'; $('hud').style.display = 'block';
 }
 function pause() {
-  active = false; keys.clear(); fireHeld = false; soundtrack.pause();
+  active = false; keys.clear(); fireHeld = false; stopMusic();
   camera.fov = 70; camera.updateProjectionMatrix();
   $('overlay').style.display = 'flex'; $('hud').style.display = 'none';
   $('start').textContent = '▶ RESUME MISSION';
@@ -300,7 +320,7 @@ function hurt(damage) {
   hp = Math.max(0, hp - damage); damageFlash = .16;
 }
 function finish(won) {
-  ended = true; active = false; fireHeld = false; soundtrack.pause(); keys.clear();
+  ended = true; active = false; fireHeld = false; stopMusic(); keys.clear();
   if (document.pointerLockElement) document.exitPointerLock();
   $('overlay').style.display = 'flex'; $('hud').style.display = 'none';
   document.body.classList.add('ended');

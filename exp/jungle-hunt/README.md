@@ -30,7 +30,7 @@ Amber caches grant 24 rounds; pink medkits restore up to 50 health; turquoise bo
 
 ## Soundtrack
 
-“Push2 test 2_2” — Guidewire, supplied by the user. `assets/push2-test-2_2-loop.mp3` is a 192 kbps browser copy with embedded metadata removed. A four-second tail-to-head crossfade smooths the repeat point; playback begins four seconds into the original and the loop lasts 5:04. Music plays at 45% volume and loops automatically. It starts with the mission, pauses with the game, and resumes at the same position. The original WAV is unchanged.
+“Push2 test 2_2” — Guidewire, supplied by the user. `assets/push2-test-2_2-loop.mp3` is a 192 kbps browser copy with embedded metadata removed. A four-second tail-to-head crossfade smooths the repeat point; playback begins four seconds into the original and the loop lasts 5:04. Music plays at 45% volume and loops automatically. The Start Mission click starts playback directly before requesting mouse capture, which satisfies browser user-interaction requirements. Music pauses with the game and resumes at the same position. If the browser blocks playback, the sound control becomes Play Music for a direct retry. Muting is respected on resume. The original WAV is unchanged.
 
 ## GitHub Pages publication
 

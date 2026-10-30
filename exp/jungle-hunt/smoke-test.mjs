@@ -32,6 +32,33 @@ let now = performance.now();
 function tick(seconds) { for (let i = 0; i < Math.ceil(seconds / .025); i++) { now += 25; renderFrame(now); } }
 function key(code, down = true) { listeners[down ? 'keydown' : 'keyup']({code, preventDefault() {}}); }
 
+// The user click must start audio before the asynchronous pointer-lock request.
+const music = element('soundtrack');
+const normalPlay = music.play.bind(music);
+let playCalls = 0, resolvePlayback;
+music.play = () => { playCalls++; music.paused = false; return new Promise(resolve => { resolvePlayback = resolve; }); };
+element('world').requestPointerLock = () => {
+  assert.equal(music.paused, false, 'music starts within the click gesture before mouse capture');
+  return Promise.reject(new Error('pointer lock unavailable'));
+};
+await element('start').onclick();
+assert.equal(game.state().active, true); assert.equal(playCalls, 1, 'no duplicate startup play request');
+resolvePlayback(); await new Promise(resolve => setImmediate(resolve));
+game.pause();
+// A blocked play request exposes a one-click retry rather than toggling sound off.
+music.play = () => Promise.reject(Object.assign(new Error('gesture required'), {name: 'NotAllowedError'}));
+element('world').requestPointerLock = () => Promise.reject(new Error('pointer lock unavailable'));
+await element('start').onclick(); await new Promise(resolve => setImmediate(resolve));
+assert.match(element('sound').textContent, /PLAY MUSIC/);
+music.play = normalPlay;
+element('sound').onclick(); await new Promise(resolve => setImmediate(resolve));
+assert.equal(music.paused, false); assert.match(element('sound').textContent, /SOUND ON/);
+game.pause();
+element('sound').onclick(); // mute while paused
+await element('start').onclick(); assert.equal(music.paused, true, 'resume respects mute');
+element('sound').onclick(); await new Promise(resolve => setImmediate(resolve));
+game.pause();
+
 game.enter(); assert.equal(element('soundtrack').paused, false);
 element('sound').onclick(); assert.equal(element('soundtrack').paused, true);
 element('sound').onclick(); assert.equal(element('soundtrack').paused, false);
@@ -81,4 +108,4 @@ const loss = await import('data:text/javascript;base64,' + Buffer.from(source + 
 loss.enter(); loss.hurt(100); tick(.05);
 assert.equal(loss.state().ended, true); assert.equal(element('soundtrack').paused, true);
 assert.match(element('h1').innerHTML, /OVER/);
-console.log('PASS: soundtrack, pause/resume, firing/reload, keyboard auto fire, supplies/healing, zoom, enemy and wildlife ray hits, patrol projectiles/damage, three transmitters, extraction and defeat.');
+console.log('PASS: click-to-start music, blocked-audio retry, muted resume, soundtrack, pause/resume, firing/reload, keyboard auto fire, supplies/healing, zoom, enemy and wildlife ray hits, patrol projectiles/damage, three transmitters, extraction and defeat.');

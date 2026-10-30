@@ -32,22 +32,24 @@ Amber caches grant 24 rounds; pink medkits restore up to 50 health; turquoise bo
 
 “Push2 test 2_2” — Guidewire, supplied by the user. `assets/push2-test-2_2-loop.mp3` is a 192 kbps browser copy with embedded metadata removed. A four-second tail-to-head crossfade smooths the repeat point; playback begins four seconds into the original and the loop lasts 5:04. Music plays at 45% volume and loops automatically. It starts with the mission, pauses with the game, and resumes at the same position. The original WAV is unchanged.
 
-<<<<<<< Updated upstream
-## Validation and art generation
-=======
-<<<<<<< Updated upstream
-## Validation
-=======
 ## GitHub Pages publication
 
-This experiment's `.gitattributes` keeps `assets/` and the preview screenshot as ordinary Git files. GitHub Pages must serve the actual MP3, font, and PNG bytes; Git LFS pointer files cannot be decoded by the browser. After changing these attributes, existing assets must be re-added with `git add --renormalize exp/jungle-hunt/assets exp/jungle-hunt/screenshot.png` before committing and publishing. The soundtrack response should be approximately 7 MB, not a roughly 130-byte `version https://git-lfs.github.com/spec/v1` pointer.
+The experiment's `.gitattributes` keeps browser assets as ordinary Git files. The actual file bytes must also be present: changing attributes alone cannot repair an existing LFS pointer. GitHub Pages must receive the MP3, font, and PNG data, not approximately 130-byte pointer files.
+
+Before committing, stage restored assets and validate the index:
+
+```sh
+git add --renormalize exp/jungle-hunt/assets exp/jungle-hunt/screenshot.png
+node exp/jungle-hunt/check-assets.mjs --staged
+```
+
+After committing, run `node exp/jungle-hunt/check-assets.mjs --committed` to check the exact Git blobs that will be published. The soundtrack is approximately 7 MB and the font is approximately 118 KB. Asset URLs carry a version query to bypass previously cached pointer responses.
 
 ## Validation and art generation
->>>>>>> Stashed changes
->>>>>>> Stashed changes
 
 ```sh
 node --check exp/jungle-hunt/game.js
+node exp/jungle-hunt/check-assets.mjs
 node exp/jungle-hunt/smoke-test.mjs
 ```
 

@@ -1,1 +1,8 @@
-{"private":true,"type":"module","scripts":{"check":"node --check game.js","test":"node smoke-test.mjs"}}
+{
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "node --check game.js && node check-assets.mjs",
+    "test": "node check-assets.mjs && node smoke-test.mjs"
+  }
+}

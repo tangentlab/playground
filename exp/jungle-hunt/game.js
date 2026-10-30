@@ -21,7 +21,7 @@ const range = (a, b) => a + random() * (b - a);
 const material = color => new T.MeshLambertMaterial({color, flatShading: true});
 const loader = new T.TextureLoader();
 function texture(name, repeat = 1) {
-  const tex = loader.load(`assets/${name}.png`);
+  const tex = loader.load(`assets/${name}.png?v=assets-2`);
   tex.magFilter = tex.minFilter = T.NearestFilter;
   tex.generateMipmaps = false;
   tex.colorSpace = T.SRGBColorSpace;

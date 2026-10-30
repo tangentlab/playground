@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Operation Wildwood — Sector 07</title><link rel="stylesheet" href="style.css">
-  <link rel="icon" href="assets/portrait.png">
+  <title>Operation Wildwood — Sector 07</title><link rel="stylesheet" href="style.css?v=assets-2">
+  <link rel="icon" href="assets/portrait.png?v=assets-2">
 </head>
 <body>
   <canvas id="world" aria-label="Pixel-art first-person jungle commando game"></canvas>
@@ -14,8 +14,8 @@
     <div id="compass">N</div><div id="crosshair" aria-hidden="true"></div>
     <div id="notice" role="status"></div>
     <aside><small>FIELD CONTROLS</small><p>WASD <span>MOVE</span></p><p>MOUSE / ARROWS <span>AIM</span></p><p>CLICK / SPACE <span>FIRE</span></p><p>SHIFT <span>RUN</span></p><p>R <span>RELOAD</span></p><p>E <span>INTERACT</span></p><p>ESC <span>PAUSE</span></p></aside>
-    <img id="weapon" src="assets/weapon.png" alt="" aria-hidden="true">
-    <footer><div class="vitals"><img src="assets/portrait.png" alt="Commando portrait"><div><small>VITAL <b id="hp">100</b></small><meter id="health" max="100" value="100"></meter><small>POWER</small><meter id="stamina" max="100" value="100"></meter></div></div><div id="gear">STANDARD BOOTS<br>IRON SIGHTS</div><div class="ammo"><small>AMMO</small><strong id="ammo">12</strong><span>/ <b id="reserve">72</b><br>R TO RELOAD</span></div></footer>
+    <img id="weapon" src="assets/weapon.png?v=assets-2" alt="" aria-hidden="true">
+    <footer><div class="vitals"><img src="assets/portrait.png?v=assets-2" alt="Commando portrait"><div><small>VITAL <b id="hp">100</b></small><meter id="health" max="100" value="100"></meter><small>POWER</small><meter id="stamina" max="100" value="100"></meter></div></div><div id="gear">STANDARD BOOTS<br>IRON SIGHTS</div><div class="ammo"><small>AMMO</small><strong id="ammo">12</strong><span>/ <b id="reserve">72</b><br>R TO RELOAD</span></div></footer>
     <div class="radar"><small>TACTICAL / 40M</small><canvas id="map" width="128" height="128" aria-label="Radar: red patrols, cyan transmitters, amber camp"></canvas></div>
   </main>
   <section id="overlay" aria-label="Mission briefing">
@@ -23,6 +23,6 @@
     <div class="briefing"><div class="brief-title">[ INCOMING TRANSMISSION ]</div><small>0200 HRS / SECTOR 07</small><p>Three signals. No call signs.<br>A patrol that never came back.</p><p>Go in. Silence the transmitters.<br>Get back to the extraction beacon.</p><p class="warning">WATCH THE TREELINE.</p><div class="brief-bottom">SOLO OPERATIVE <span>CLASSIFIED</span></div></div>
     <div class="credits">GUIDEWIRE SOUND SYSTEM <span>1987 / INSERT COURAGE</span></div>
   </section>
-  <audio id="soundtrack" src="assets/push2-test-2_2-loop.mp3" loop preload="none"></audio>
-  <script type="module" src="game.js"></script>
+  <audio id="soundtrack" src="assets/push2-test-2_2-loop.mp3?v=assets-2" loop preload="none"></audio>
+  <script type="module" src="game.js?v=assets-2"></script>
 </body></html>
